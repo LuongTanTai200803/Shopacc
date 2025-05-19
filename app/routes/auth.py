@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
-from routes import check_user
 from app.extensions import db
-from models.user import User, check_password
+from app.models.user import User
+
+
 auth_bp = Blueprint("auth",__name__)
 
 @auth_bp.route('/signup', methods=['POST'])
@@ -40,11 +41,11 @@ def login():
     if not user or not user.check_password(password) :
         return jsonify({"msg": "Bad credentials"}), 401
     # Tạo token
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify({
         "msg": "Đăng nhập thành công",
-        "token": access_token}), 200
+        "access_token": access_token}), 200
 
 @auth_bp.route('/profile', methods=['GET'])
 @jwt_required()
@@ -71,4 +72,4 @@ def put_coin():
     user.coin = data.get('coin', user.coin)
 
     db.session.commit()
-    return profile(), 200 
+    return profile()

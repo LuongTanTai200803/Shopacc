@@ -1,10 +1,6 @@
-from flask import jsonify
-from app.models.user import User
+from .auth import auth_bp
+from .account import acc_bp
 
-def check_user(user_id):
-    user = User.query.filter_by(id=user_id).first()
 
-    if user:
-        return user
-    else:
-        return False
+
+

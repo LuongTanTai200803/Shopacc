@@ -1,6 +1,6 @@
 # Bỏ qua virtual environment
 venv/
-env/
+.env
 __pycache__/
 *.pyc
 *.pyo

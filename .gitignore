@@ -1,5 +1,6 @@
 # Bỏ qua virtual environment
 venv/
+env/
 .env
 __pycache__/
 *.pyc
@@ -7,4 +8,4 @@ __pycache__/
 *.pyd
 
 # frontend/
-node_modules/
+**/node_modules/

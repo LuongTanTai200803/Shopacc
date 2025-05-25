@@ -39,7 +39,7 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     if not user or not user.check_password(password) :
-        return jsonify({"msg": "Bad credentials"}), 401
+        return jsonify({"msg": "Sai tên hoặc mật khẩu"}), 401
     # Tạo token
     access_token = create_access_token(identity=str(user.id))
 

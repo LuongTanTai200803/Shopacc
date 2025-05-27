@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Profile from './Profile';
 
 // Import ảnh động
 const images = import.meta.glob("../assets/images/*.jpg", { eager: true });
@@ -24,7 +25,9 @@ const accounts = [
   },
 ];
 
+
 export default function Home() {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState("home"); // "home", "signup", "login"
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
@@ -39,8 +42,12 @@ export default function Home() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
     setScreen("home");
+
   };
+
+
     if (screen === "signup") 
       return <Signup
               onBack={() => setScreen("home")}
@@ -54,6 +61,9 @@ export default function Home() {
               onSwitchToLogin={() => setScreen("login")}
               onLoginSuccess={handleLoginSuccess} // Truyền callback
              />;
+    if (screen === "profile") {
+      return <Profile setScreen={setScreen} />;
+    }
 
 
   return (
@@ -74,7 +84,7 @@ export default function Home() {
             <li className="nav-item"><a className="nav-link" href="#">Giới thiệu</a></li>
           </ul>
           <div className="d-flex">
-            {isLoggedIn ? (   // Kiểm tra đăng nhập
+            {isLoggedIn && localStorage.getItem("token") ? (   // Kiểm tra đăng nhập
                 <>
                   <button
                     className="btn btn-outline-dark me-2"
@@ -284,6 +294,7 @@ function Login({ onBack, onSwitchToSignup ,onSwitchToLogin, onLoginSuccess}) {
         if (response.ok) {
             // Kiểm tra token trước khi lưu
           localStorage.setItem('token', data.access_token); // lưu token
+          console.log("Status code:", response.status);
             //setTimeout(() => { if (onBack) onBack(); // gọi callback để chuyển sang form login }, 2000);
           if (onLoginSuccess) onLoginSuccess();
         } else {
@@ -296,7 +307,7 @@ function Login({ onBack, onSwitchToSignup ,onSwitchToLogin, onLoginSuccess}) {
         setError('Không thể kết nối tới server. Có thể server bị lỗi hoặc bạn đang offline.');
     }
 
-    console.log("Login", { username, password });
+
   };
 
   return (

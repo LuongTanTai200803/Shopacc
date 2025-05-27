@@ -6,7 +6,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(36), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    coin = db.Column(db.Integer, nullable=True)
+    coin = db.Column(db.Integer, nullable=True, default=0)
     role = db.Column(db.String(10), default="User")
 
     def set_password(self, password):

@@ -29,19 +29,19 @@ def create_app(config_class = Config):
     """ from app.models.user import User
     print(User.__table__.columns.keys()) """
 
-    print(app.config['SECRET_KEY'])
+    #print(app.config['SECRET_KEY'])
 
     # Không khởi tạo ở create_app()
-    with app.app_context():
+    """     with app.app_context():
         if not os.getenv("TESTING"):
             db.drop_all()
-            db.create_all()
+            db.create_all() """
     # Kiểm tra endpoint
 
-    with app.app_context():
+    """ with app.app_context():
         for rule in app.url_map.iter_rules():
             methods = ','.join(rule.methods)
-            print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}")
+            print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}") """
     return app
 
 def setup_logging():

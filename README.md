@@ -4,6 +4,7 @@ A web application for managing accounts and transactions, built with React (fron
 
 ## Overview
 Shopacc Web is a platform that allows users to register, log in, view account details, recharge coins, and perform other account-related actions via a RESTful API system.
+Page create account for Admin
 
 ## Tech Stack
 - **Frontend**: React, React Router, Bootstrap

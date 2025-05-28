@@ -1,12 +1,28 @@
+from functools import wraps
 from app.extensions import db
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
 
 from app.models.user import User
 from app.models.acc import Acc
 
 
 acc_bp = Blueprint("acc",__name__)
+
+def admin_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request()  # xác thực token trước
+        claims = get_jwt()
+
+        role = claims.get("role")     # nếu bạn lưu "role" trong token
+
+        if role != "Admin":
+            return jsonify({"msg": "Admin access required"}), 403
+
+        return fn(*args, **kwargs)
+    return wrapper
+
 
 def check_user(user_id):
     user = User.query.filter_by(id=user_id).first()
@@ -58,6 +74,8 @@ def details_acc(acc_id):
 
 @acc_bp.route('/', methods=['POST'])
 @jwt_required()
+@admin_required
+@admin_required
 def create_acc():
     data = request.get_json()
 
@@ -89,3 +107,11 @@ def del_acc(acc_id):
     db.session.delete(acc)
     db.session.commit()
     return jsonify({"msg": "Mua acc thành công"}), 200
+
+
+@acc_bp.route('/check')
+@jwt_required()
+@admin_required
+def check_role():
+    
+    return jsonify({"msg": "Admin access! "}), 200

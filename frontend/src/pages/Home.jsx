@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Profile from './Profile';
 
@@ -32,6 +32,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   ); // Khởi tạo từ localStorage
+  const [tokenExpired, setTokenExpired] = useState(false);
+  const token = localStorage.getItem('token');
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true); // Cập nhật trạng thái đăng nhập
@@ -40,13 +42,35 @@ export default function Home() {
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    //setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("token");
     setScreen("home");
 
   };
 
+  useEffect(() => {
+    if (token) { //Kiểm tra có token hay không
+      fetch("http://127.0.0.1:5000/auth/protected", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => {
+          if (res.status === 200) {
+            setIsLoggedIn(true);  
+            // console.error('Response status:', res.status); // thêm dòng này
+            // console.error('Response data:', data); // thêm dòng này
+          } else {
+
+            setIsLoggedIn(false);
+            localStorage.removeItem("token"); // Xóa token không hợp lệ
+          }
+        });
+    } else {
+      setIsLoggedIn(false);
+    }   
+  }, []);
 
     if (screen === "signup") 
       return <Signup
@@ -64,6 +88,7 @@ export default function Home() {
     if (screen === "profile") {
       return <Profile setScreen={setScreen} />;
     }
+  
 
 
   return (

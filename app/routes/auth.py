@@ -1,6 +1,7 @@
+from functools import wraps
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
-from app.extensions import db
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
+from app.extensions import db, jwt
 from app.models.user import User
 
 
@@ -41,7 +42,7 @@ def login():
     if not user or not user.check_password(password) :
         return jsonify({"msg": "Sai tên hoặc mật khẩu"}), 401
     # Tạo token
-    access_token = create_access_token(identity=str(user.id))
+    access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
 
     return jsonify({
         "msg": "Đăng nhập thành công",
@@ -69,7 +70,18 @@ def put_coin():
     data = request.get_json()
     user = User.query.filter_by(id=user_id).first()
 
-    user.coin = data.get('coin', user.coin)
+    user.coin += int(data.get('coin', user.coin))
 
     db.session.commit()
-    return profile()
+
+    return jsonify({f"msg": "Coins received {data.get['coin']}"}), 200
+
+@auth_bp.route('/protected')
+@jwt_required()
+def protected():
+    return jsonify({"msg": "You are logged in!"}), 200
+
+
+
+
+

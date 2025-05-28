@@ -29,7 +29,7 @@ def create_app(config_class = Config):
     """ from app.models.user import User
     print(User.__table__.columns.keys()) """
 
-    #print(app.config['SECRET_KEY'])
+    #print(app.config['JWT_SECRET_KEY'])
 
     # Không khởi tạo ở create_app()
     """     with app.app_context():

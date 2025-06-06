@@ -22,5 +22,8 @@ class Testing(Config):
     TESTING = True
 
 class Production(Config):
-    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:3366@localhost:5432/db_shopacc"
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    TESTING = False
+    DEBUG = False
+
     

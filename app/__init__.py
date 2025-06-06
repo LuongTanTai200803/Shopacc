@@ -1,6 +1,7 @@
 import os
 import logging
 from flask import Flask
+from flask_migrate import upgrade
 from app.config import Config
 from app.extensions import db, jwt, migratie
 from app.log_request import setup_request_logger
@@ -18,6 +19,11 @@ def create_app(config_class = Config):
     jwt.init_app(app)
     migratie.init_app(app, db)
 
+    from app.models import User, Acc 
+    with app.app_context():
+        # Tự động chạy migration
+        upgrade()
+        
     # Đăng ký blueprint
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(acc_bp, url_prefix="/acc")

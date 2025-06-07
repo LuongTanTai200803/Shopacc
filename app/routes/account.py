@@ -114,9 +114,16 @@ def update_acc(acc_id):
     if not acc:
         return jsonify({"error": "Account not found"}), 404
     
-    acc.hero = data.get('hero', acc.hero)
-    acc.skin = data.get('skin', acc.skin)
-    acc.price = data.get('price', acc.price)
+    if not all(field in data for field in ['hero', 'skin','price','description']):
+        return jsonify({"msg": "Not Enough Data"}), 400
+    
+    string_fields = ['hero', 'skin', 'price']
+    for field in string_fields:
+        value = data.get(field)
+        if value not in (None, ""):
+            setattr(acc, field, value)
+
+
     acc.description = data.get('description', acc.description)
     acc.rank = data.get('rank', acc.rank)
     acc.image_url = data.get('image_url', acc.image_url)

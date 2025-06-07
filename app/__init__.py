@@ -12,7 +12,14 @@ from flask_cors import CORS
 
 def create_app(config_class = Config):
     app = Flask(__name__)
-    CORS(app)
+    
+    # Cấu hình CORS với nguồn gốc cụ thể
+    CORS(app, resources={r"/*": {
+        "origins": ["https://shopaccui-production.up.railway.app"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }})
+
     app.config.from_object(config_class)
 
     db.init_app(app)

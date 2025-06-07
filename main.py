@@ -6,3 +6,6 @@ app = create_app(config_class=Production)
 
 if __name__ == '__main__':
     app.run(debug=False)
+else:
+    # Khi chạy với Gunicorn, dùng app đã tạo
+    gunicorn_app = app

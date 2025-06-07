@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: psql
+      POSTGRES_PASSWORD: 3366
+      POSTGRES_DB: db_shopacc
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: web_v1
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"  # Dùng expose thay vì ports để tránh public
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./logs:/app/logs 
+    healthcheck:
+      disable: true
+      # test: ["CMD", "curl", "-f", "http://localhost:5000/api/tasks/test"]
+      # interval: 10s
+      # timeout: 5s
+      # retries: 3
+volumes:
+  pgdata:

@@ -11,6 +11,12 @@ import logging
 
 logger = logging.getLogger(__name__) 
 
+
+@auth_bp.route('/ping')
+def ping():
+    return "pong", 200
+
+
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     try:

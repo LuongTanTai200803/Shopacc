@@ -12,10 +12,10 @@ from flask_cors import CORS
 
 def create_app(config_class = Config):
     app = Flask(__name__)
-    
+
     # Cấu hình CORS với nguồn gốc cụ thể
     CORS(app, resources={r"/*": {
-        "origins": ["https://shopaccui-production.up.railway.app"],
+        "origins": ["https://shopacc22222-production.up.railway.app"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }})
@@ -52,11 +52,11 @@ def create_app(config_class = Config):
             db.drop_all()
             db.create_all() """
     # Kiểm tra endpoint
-
-    """ with app.app_context():
+    with app.app_context():
         for rule in app.url_map.iter_rules():
             methods = ','.join(rule.methods)
-            print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}") """
+            print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}")
+
     return app
 
 def setup_logging():

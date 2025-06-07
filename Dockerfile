@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose cổng ứng dụng (Railway sẽ tự động nhận diện)
-EXPOSE ${PORT:-8000}
+EXPOSE 8000
 
 # Chạy ứng dụng Flask với $PORT và tăng timeout
 CMD ["gunicorn", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:8000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-", "--timeout", "120", "main:app"]

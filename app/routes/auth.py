@@ -7,6 +7,10 @@ from app.models.user import User
 
 auth_bp = Blueprint("auth",__name__)
 
+import logging
+
+logger = logging.getLogger(__name__) 
+
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     try:
@@ -32,6 +36,7 @@ def signup():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    logger.error("Đã vào api")
     data = request.get_json()
     username = data['username']
     password = data['password']

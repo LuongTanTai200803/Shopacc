@@ -1,3 +1,6 @@
+print("Main file loaded")
+
+
 from app import create_app, setup_logging
 from app.config import Testing, Production, Config
 

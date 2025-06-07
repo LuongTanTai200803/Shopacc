@@ -20,7 +20,7 @@ def create_app(config_class = Config):
 
         # Cấu hình CORS với nguồn gốc cụ thể
         CORS(app, resources={r"/*": {
-            "origins": ["https://shopacc22222-production.up.railway.app"],
+            "origins": ["https://shopacc.up.railway.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }})

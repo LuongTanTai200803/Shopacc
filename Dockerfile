@@ -20,4 +20,4 @@ COPY . .
 EXPOSE ${PORT:-8000}
 
 # Chạy ứng dụng Flask với $PORT và tăng timeout
-CMD ["gunicorn", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:${PORT:-8000}", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-", "--timeout", "120", "main:app"]
+CMD ["gunicorn", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:8000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-", "--timeout", "120", "main:app"]

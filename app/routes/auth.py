@@ -9,23 +9,26 @@ auth_bp = Blueprint("auth",__name__)
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-    
-    if User.query.filter_by(username=username).first():
-        return jsonify({"msg": "User exists"}), 409
+    try:
+        data = request.get_json()
+        username = data['username']
+        password = data['password']
+        
+        if User.query.filter_by(username=username).first():
+            return jsonify({"msg": "User exists"}), 409
 
-    # Kiểm tra field cần thiết
-    if not all(field in data for field in ['username', 'password']):
-        return jsonify({"msg": "Not Enough Data"}), 400
-    
-    user = User(username=username)
-    user.set_password(password)
-    db.session.add(user)
-    db.session.commit()
-    
-    return jsonify({"msg": "User created successfully"}), 201
+        # Kiểm tra field cần thiết
+        if not all(field in data for field in ['username', 'password']):
+            return jsonify({"msg": "Not Enough Data"}), 400
+        
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        
+        return jsonify({"msg": "User created successfully"}), 201
+    except Exception as e:
+        return jsonify({"message": "Lỗi server", "error": str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

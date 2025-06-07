@@ -90,8 +90,10 @@ def create_acc():
             hero = data['hero'],
             skin = data['skin'],
             price = data['price'],
-            description = data['description']   
+            description = data['description'] ,
+            image_url = data['image_url']  
     )
+
     db.session.add(acc)
     db.session.commit()
 

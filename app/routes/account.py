@@ -114,9 +114,6 @@ def update_acc(acc_id):
     if not acc:
         return jsonify({"error": "Account not found"}), 404
     
-    if not all(field in data for field in ['hero', 'skin','price','description']):
-        return jsonify({"msg": "Not Enough Data"}), 400
-    
     string_fields = ['hero', 'skin', 'price']
     for field in string_fields:
         value = data.get(field)

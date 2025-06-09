@@ -80,9 +80,10 @@ def profile():
 @auth_bp.route('/', methods=['PUT'])
 @jwt_required()
 def put_coin():
-    user_id = get_jwt_identity()
     data = request.get_json()
+    user_id = data.get("id_guest")
     user = User.query.filter_by(id=user_id).first()
+
     coin = int(data['coin'])
     if   coin < 0 :
         return jsonify({"msg": "wrong value"}),400
@@ -91,7 +92,7 @@ def put_coin():
 
     db.session.commit()
 
-    return jsonify({f"msg": "Coins received {data.get['coin']}"}), 200
+    return jsonify({"msg": f"User {user_id} received {coin}"}), 200
 
 @auth_bp.route('/protected')
 @jwt_required()

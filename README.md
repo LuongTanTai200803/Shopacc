@@ -9,7 +9,7 @@ API cho hệ thống bán tài khoản game
 - [x] Phân quyền người dùng theo token (admin/user)
 
 ### Tech stack:
-Python (Flask), REST API, SQLAlchemy + MySQL/PostgreSQL, Deploy: Railway -> (Nginx) + Gunicorn, JWT.
+Python (Flask), REST API, SQLAlchemy + MySQL/PostgreSQL, Redis, Deploy: Railway -> (Nginx) + Gunicorn, JWT.
 
 ## ⚙️ Cài đặt (Local)
 

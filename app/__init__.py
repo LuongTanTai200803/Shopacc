@@ -7,7 +7,7 @@ from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from app.config import Config
-from app.extensions import db, jwt, migratie
+from app.extensions import db, jwt, migratie, cache
 from app.log_request import setup_request_logger
 from .error_handler import register_error_handlers
 from app.routes import auth_bp, acc_bp, order_bp
@@ -21,7 +21,7 @@ def create_app(config_class = Config):
         # Cấu hình CORS với nguồn gốc cụ thể
         CORS(app, resources={r"/*": {
             "origins": ["https://shopacc.up.railway.app", "http://localhost:5173"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }})
 
@@ -30,7 +30,7 @@ def create_app(config_class = Config):
         db.init_app(app)
         jwt.init_app(app)
         migratie.init_app(app, db)
-
+        cache.init_app(app)
         from app.models import User, Acc 
         with app.app_context():
             print("Running DB migrations...")

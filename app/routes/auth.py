@@ -1,7 +1,8 @@
 from functools import wraps
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
-from app.extensions import db, jwt
+from app.extensions import db, jwt, cache
 from app.models.user import User
 
 
@@ -55,11 +56,25 @@ def login():
 
     if not user or not user.check_password(password) :
         return jsonify({"msg": "Sai tên hoặc mật khẩu"}), 401
-    # Tạo token
+    
+    # Kiểm tra token trong Redis
+    cached_token = cache.get(f"user_token:{user.id}")
+    if cached_token:
+        return jsonify({
+            "msg": "Đăng nhập thành công (token cũ)",
+            "username": user.username,
+            "coin": user.coin,
+            "access_token": cached_token
+        }), 200
+
+    # Nếu không có token cũ, tạo mới
     access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
+    cache.set(f"user_token:{user.id}", access_token, timeout=900)
 
     return jsonify({
         "msg": "Đăng nhập thành công",
+        "coin": user.coin,
+        "username": user.username,
         "access_token": access_token}), 200
 
 @auth_bp.route('/profile', methods=['GET'])

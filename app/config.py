@@ -16,7 +16,14 @@ class Config:
         'pool_recycle': 7200,  # Tái sử dụng kết nối sau 2 giờ
     }
     JWT_SECRET_KEY = os.getenv("SECRET_KEY")
+    CELERY_BROKER_URL = os.getenv("REDIS_URL") # 0
+    CELERY_RESULT_BACKEND = os.getenv("REDIS_URL") # 1
 
+    CACHE_TYPE = 'RedisCache'
+    # CACHE_KEY_PREFIX': 'my_cache_,
+    CACHE_REDIS_URL = os.getenv("REDIS_URL") # 2
+    CACHE_DEFAULT_TIMEOUT = 30
+    
 class Testing(Config):
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:3366@localhost:5432/db_shopacc"
     TESTING = True

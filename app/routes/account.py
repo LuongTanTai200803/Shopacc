@@ -1,6 +1,8 @@
 from functools import wraps
 import logging
-from app.extensions import db
+
+
+from app.extensions import db, cache
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
 
@@ -35,6 +37,7 @@ def check_user(user_id):
         return False
 
 @acc_bp.route('/', methods=['GET'])
+@cache.cached(timeout=60)
 def get_acc():
 
     accs = Acc.query.filter_by().all()
@@ -59,6 +62,7 @@ def get_acc():
 
 @acc_bp.route('/<int:acc_id>', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=60)
 def details_acc(acc_id):
     acc = Acc.query.filter_by(id=acc_id).first()
 

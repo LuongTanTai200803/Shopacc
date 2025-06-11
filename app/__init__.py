@@ -32,7 +32,7 @@ def create_app(config_class = Config):
         jwt.init_app(app)
         migratie.init_app(app, db)
         cache.init_app(app)
-        
+        print(os.getenv("CACHE_REDIS_URL"))
         from app.models import User, Acc 
         with app.app_context():
             print("Running DB migrations...")

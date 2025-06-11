@@ -3,8 +3,7 @@ import logging
 import time
 
 from flask import Flask
-from flask_caching import Cache
-from redis import Redis
+
 from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
@@ -32,12 +31,8 @@ def create_app(config_class = Config):
         db.init_app(app)
         jwt.init_app(app)
         migratie.init_app(app, db)
-        cache = Cache(config={
-            'CACHE_TYPE': 'RedisCache',
-            'CACHE_REDIS_URL': os.getenv("CACHE_REDIS_URL"),
-        })
-        print(app.config['CACHE_REDIS_URL'])
         cache.init_app(app)
+        
         from app.models import User, Acc 
         with app.app_context():
             print("Running DB migrations...")

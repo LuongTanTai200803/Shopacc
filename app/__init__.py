@@ -1,5 +1,6 @@
 import os
 import logging
+import sys
 import time
 
 from flask import Flask
@@ -97,18 +98,20 @@ def create_app(config_class = Config):
             raise
 
 def setup_logging():
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)  # hoặc INFO tùy nhu cầu
 
-    # Cấu hình log
     log_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    formatter = logging.Formatter(log_format)
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format=log_format,
-        handlers=[logging.StreamHandler()]
-    ) 
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setFormatter(formatter)
 
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    logger.addHandler(stream_handler)
+    
     werkzeug_log = logging.getLogger('werkzeug')
     werkzeug_log.setLevel(logging.CRITICAL)
     #werkzeug_log.propagate = False 

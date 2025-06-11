@@ -45,12 +45,6 @@ class Production(Config):
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
     CACHE_DEFAULT_TIMEOUT = 30
-    # Ghi log để debug
-    logger.error(f"CACHE_REDIS_URL: {CACHE_REDIS_URL}")
-    logger.error(f"CACHE_REDIS_HOST: {redis_url.hostname}")
-    logger.error(f"CACHE_REDIS_PORT: {redis_url.port}")
-    logger.error(f"CACHE_REDIS_DB: {redis_url.path[1:] if redis_url.path else '0'}")
-    logger.error(f"CACHE_REDIS_PASSWORD: {redis_url.password}")
 
 
     

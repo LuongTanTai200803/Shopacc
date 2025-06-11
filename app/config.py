@@ -26,11 +26,7 @@ class Config:
     
 class Testing(Config):
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:3366@localhost:5432/db_shopacc"
-    TESTING = True  
-    CELERY_BROKER_URL = "redis://default:rtqvtUAJMrEjfKqNmFTMyxSjfQiSTjaa@shuttle.proxy.rlwy.net:48974/0" # 0
-    CELERY_RESULT_BACKEND = "redis://default:rtqvtUAJMrEjfKqNmFTMyxSjfQiSTjaa@shuttle.proxy.rlwy.net:48974/1" # 1
-    CACHE_REDIS_URL = "redis://default:rtqvtUAJMrEjfKqNmFTMyxSjfQiSTjaa@shuttle.proxy.rlwy.net:48974/2" # 2
-    
+    TESTING = True 
 
 class Production(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")

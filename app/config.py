@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-redis_url = urlparse(os.getenv("CACHE_REDIS_URL"))
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI= "postgresql+psycopg2://postgres:3366@localhost:5432/db_shopacc"
@@ -35,11 +34,5 @@ class Production(Config):
     TESTING = False
     DEBUG = False
 
-    CACHE_TYPE = 'RedisCache'
-    CACHE_REDIS_HOST = redis_url.hostname
-    CACHE_REDIS_PORT = redis_url.port
-    CACHE_REDIS_PASSWORD = redis_url.password
-    CACHE_REDIS_DB = int(redis_url.path.replace("/", ""))
-    CACHE_DEFAULT_TIMEOUT = 30
 
     

@@ -15,7 +15,6 @@ from app.routes import auth_bp, acc_bp, order_bp
 from flask_cors import CORS
 
 import logging
-
 logger = logging.getLogger(__name__) 
 
 def create_app(config_class = Config):
@@ -67,6 +66,18 @@ def create_app(config_class = Config):
             for rule in app.url_map.iter_rules():
                 methods = ','.join(rule.methods)
                 print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}") """
+
+        # Test kết nối Redis
+        try:
+            cache.set("test_key", "test_value", timeout=60)
+            logger.info("Lưu cache thành công!")
+            logger.info(f"Giá trị cache: {cache.get('test_key')}")
+        except Exception as e:
+            logger.error(f"Lỗi khi làm việc với Redis: {e}")
+        @app.route('/test-cache')
+        @cache.cached(timeout=60)
+        def test_cache():
+            return "This should be cached!"
 
         return app
     except Exception as e:

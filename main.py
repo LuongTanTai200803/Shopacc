@@ -6,7 +6,12 @@ from app import create_app, setup_logging, wait_for_db
 from app.config import Testing, Production, Config
 from app.extensions import db
 
+import logging
+logger = logging.getLogger(__name__) 
+
 setup_logging()
+print(">>> Logging started <<<")
+logging.debug("🟢 Logging setup complete.")
 app = create_app(config_class=Production)
 
 if __name__ == '__main__':

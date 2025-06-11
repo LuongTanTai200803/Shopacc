@@ -98,23 +98,21 @@ def create_app(config_class = Config):
             raise
 
 def setup_logging():
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)  # hoặc INFO tùy nhu cầu
-
     log_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-    formatter = logging.Formatter(log_format)
 
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setFormatter(formatter)
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
 
+    # Xóa tất cả handler hiện tại
     if logger.hasHandlers():
         logger.handlers.clear()
 
+    # Thêm StreamHandler ra stdout
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(stream_handler)
-    
-    werkzeug_log = logging.getLogger('werkzeug')
-    werkzeug_log.setLevel(logging.CRITICAL)
-    #werkzeug_log.propagate = False 
+
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
 def wait_for_db(app, db, retries=5, delay=2):
     last_exception = None

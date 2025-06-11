@@ -4,6 +4,7 @@ import time
 
 from flask import Flask
 from flask_caching import Cache
+from redis import Redis
 from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError

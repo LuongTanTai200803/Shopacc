@@ -14,6 +14,9 @@ from .error_handler import register_error_handlers
 from app.routes import auth_bp, acc_bp, order_bp
 from flask_cors import CORS
 
+import logging
+
+logger = logging.getLogger(__name__) 
 
 def create_app(config_class = Config):
     try:
@@ -32,7 +35,7 @@ def create_app(config_class = Config):
         jwt.init_app(app)
         migratie.init_app(app, db)
         cache.init_app(app)
-        print(os.getenv("CACHE_REDIS_URL"))
+        logger.error(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")
         from app.models import User, Acc 
         with app.app_context():
             print("Running DB migrations...")

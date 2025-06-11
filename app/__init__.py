@@ -35,6 +35,7 @@ def create_app(config_class = Config):
             'CACHE_TYPE': 'RedisCache',
             'CACHE_REDIS_URL': os.getenv("CACHE_REDIS_URL"),
         })
+        print(app.config['CACHE_REDIS_URL'])
         cache.init_app(app)
         from app.models import User, Acc 
         with app.app_context():

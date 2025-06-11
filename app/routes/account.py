@@ -9,6 +9,9 @@ from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, verify_j
 from app.models.user import User
 from app.models.acc import Acc
 
+import logging
+
+logger = logging.getLogger(__name__) 
 
 acc_bp = Blueprint("acc",__name__)
 
@@ -57,7 +60,7 @@ def get_acc():
         }
         for acc in accs
     ]
-
+    logger.error("Truy cập route thành công")
     return jsonify(acc_data), 200
 
 @acc_bp.route('/<int:acc_id>', methods=['GET'])

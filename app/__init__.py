@@ -67,23 +67,24 @@ def create_app(config_class = Config):
             for rule in app.url_map.iter_rules():
                 methods = ','.join(rule.methods)
                 print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}") """
-        # Kiểm tra kết nối Redis
-        try:
-            r = redis.Redis.from_url(app.config['CACHE_REDIS_URL'])
-            r.ping()
-            logger.error("Kết nối Redis thành công!")
-        except redis.ConnectionError as e:
-            logger.error(f"Lỗi kết nối Redis: {e}")
+        # # Kiểm tra kết nối Redis
+        # try:
+        #     r = redis.Redis.from_url(app.config['CACHE_REDIS_URL'])
+        #     r.ping()
+        #     logger.error("Kết nối Redis thành công!")
+        # except redis.ConnectionError as e:
+        #     logger.error(f"Lỗi kết nối Redis: {e}")
 
-        # Test kết nối Redis
-        try:
-            cache.set("test_key", "test_value", timeout=60)
-            logger.error(f"Cache set thành công! Giá trị: {cache.get('test_key')}")
-        except Exception as e:
-            logger.error(f"Lỗi khi làm việc với Redis: {e}")
+        # # Test kết nối Redis
+        # try:
+        #     cache.set("test_key", "test_value", timeout=60)
+        #     logger.error(f"Cache set thành công! Giá trị: {cache.get('test_key')}")
+        # except Exception as e:
+        #     logger.error(f"Lỗi khi làm việc với Redis: {e}")
         @app.route('/test-cache')
         @cache.cached(timeout=60)
         def test_cache():
+            print("Truy cập route /test-cache")
             logger.error("Truy cập route /test-cache")
             return "This should be cached!"
 

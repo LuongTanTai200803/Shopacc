@@ -70,8 +70,8 @@ def create_app(config_class = Config):
         # Test kết nối Redis
         try:
             cache.set("test_key", "test_value", timeout=60)
-            logger.info("Lưu cache thành công!")
-            logger.info(f"Giá trị cache: {cache.get('test_key')}")
+            logger.error("Lưu cache thành công!")
+            logger.error(f"Giá trị cache: {cache.get('test_key')}")
         except Exception as e:
             logger.error(f"Lỗi khi làm việc với Redis: {e}")
         @app.route('/test-cache')

@@ -98,7 +98,9 @@ def put_coin():
     data = request.get_json()
     user_id = data.get("id_guest")
     user = User.query.filter_by(id=user_id).first()
-
+    if not user:
+        return jsonify({"msg": "User not exist"}), 404
+    
     coin = int(data['coin'])
     if   coin < 0 :
         return jsonify({"msg": "wrong value"}),400

@@ -34,9 +34,11 @@ def create_app(config_class = Config):
 
         db.init_app(app)
         jwt.init_app(app)
-        migratie.init_app(app, db)
+        migratie.init_app(app, db, directory="backend/migrations")
         cache.init_app(app)
+
         logger.error(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")
+
         from app.models import User, Acc 
         with app.app_context():
             print("Running DB migrations...")
@@ -69,12 +71,13 @@ def create_app(config_class = Config):
                 methods = ','.join(rule.methods)
                 print(f"Endpoint: {rule.endpoint} | URL: {rule} | Methods: {methods}") """
         # # Kiểm tra kết nối Redis
-        # try:
-        #     r = redis.Redis.from_url(app.config['CACHE_REDIS_URL'])
-        #     r.ping()
-        #     logger.error("Kết nối Redis thành công!")
-        # except redis.ConnectionError as e:
-        #     logger.error(f"Lỗi kết nối Redis: {e}")
+        with app.app_context():
+            try:
+                r = redis.Redis.from_url(app.config['CACHE_REDIS_URL'])
+                r.ping()
+                logger.error("Kết nối Redis thành công!")
+            except redis.ConnectionError as e:
+                logger.error(f"Lỗi kết nối Redis: {e}")
 
         # # Test kết nối Redis
         # try:

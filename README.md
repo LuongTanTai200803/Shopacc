@@ -17,7 +17,7 @@ DevOps: Deploy Railway -> (Nginx) + Gunicorn, CD AWS
 ```bash
 # 1. Clone project
 git clone https://github.com/LuongTanTai200803/Shopacc.git
-cd Shopacc/backend/
+cd Shopacc/
 
 # 2. Tạo môi trường ảo & cài package
 python -m venv venv

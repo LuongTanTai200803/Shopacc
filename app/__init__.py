@@ -34,7 +34,7 @@ def create_app(config_class = Config):
 
         db.init_app(app)
         jwt.init_app(app)
-        migratie.init_app(app, db, directory="backend/migrations")
+        migratie.init_app(app, db, directory="migrations")
         cache.init_app(app)
 
         logger.error(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")

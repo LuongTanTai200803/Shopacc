@@ -1,21 +1,137 @@
 import re
+import random
+import json
+import os
 from flask import request
 from .extensions import socketio
-from .models import Acc  # Import model Acc để truy vấn database
+from .models import Acc
 from sqlalchemy import func
 from flask_socketio import emit
+import google.generativeai as genai
 
-# Dictionary để quản lý các cuộc trò chuyện đang cần admin hỗ trợ
+# --- PHẦN CẤU HÌNH VÀ TẢI DỮ LIỆU (Giữ nguyên) ---
 live_chat_queue = {}
 
+try:
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    if not GEMINI_API_KEY:
+        print("!!! CẢNH BÁO: Không tìm thấy GEMINI_API_KEY. Chức năng AI sẽ bị vô hiệu hóa. !!!")
+        gemini_model = None
+    else:
+        genai.configure(api_key=GEMINI_API_KEY)
+        gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    print(f"!!! LỖI: Không thể khởi tạo Gemini: {e} !!!")
+    gemini_model = None
+
+def load_intents():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(dir_path, 'intents.json')
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)["intents"]
+    except FileNotFoundError:
+        print("!!! LỖI: Không tìm thấy file intents.json !!!")
+        return []
+
+JSON_INTENTS = load_intents()
+
+# --- NÂNG CẤP: HÀM XỬ LÝ SỐ THÔNG MINH HƠN ---
+def parse_price_from_message(message):
+    """Trích xuất giá tiền từ tin nhắn, hiểu được 'k' (ngàn) và 'm' (triệu)."""
+    match_m = re.search(r'(\d+\.?\d*)\s*m\b', message)
+    if match_m:
+        price = float(match_m.group(1)) * 1_000_000
+        return int(price)
+    match_k = re.search(r'(\d+\.?\d*)\s*k\b', message)
+    if match_k:
+        price = float(match_k.group(1)) * 1_000
+        return int(price)
+    numbers = re.findall(r'\d+', message)
+    if numbers:
+        return max(int(num) for num in numbers)
+    return None
+
+# --- NÂNG CẤP: HÀM GỌI AI VỚI NHIỀU NHIỆM VỤ ---
+def ask_gemini_ai(task, user_message=None, context=None):
+    """
+    Hàm gọi AI đa năng:
+    - task='answer': Trả lời câu hỏi của người dùng.
+    - task='rephrase': Diễn đạt lại một câu văn cho hay hơn.
+    """
+    if not gemini_model:
+        return None
+
+    # "Bộ não" của AI được nâng cấp tại đây
+    system_prompt = ""
+    if task == 'answer':
+        system_prompt = """
+        Bạn là một trợ lý ảo tên là Bot, làm việc cho một cửa hàng bán tài khoản game Liên Minh Huyền Thoại (LMHT) tên là ShopACC.
+        Nhiệm vụ của bạn là trả lời các câu hỏi của khách hàng một cách thân thiện, chuyên nghiệp và chỉ tập trung vào các chủ đề liên quan đến shop.
+        QUY TẮC VÀNG:
+        1. BẠN CHỈ BÁN ACC LMHT.
+        2. Khi tư vấn, hãy dựa vào dữ liệu tài khoản được cung cấp để đưa ra gợi ý.
+        3. Nếu người dùng hỏi một câu không liên quan đến cửa hàng game, bạn PHẢI từ chối trả lời một cách lịch sự.
+        """
+        if context:
+            system_prompt += f"\n\nDỮ LIỆU THAM KHẢO:\n{context}"
+        content_to_send = f"{system_prompt}\n\nCâu hỏi của khách hàng: '{user_message}'"
+
+    elif task == 'rephrase':
+        system_prompt = """
+        Bạn là một trợ lý ảo bán hàng game thân thiện. Hãy diễn đạt lại câu văn sau đây sao cho tự nhiên, gần gũi và chuyên nghiệp hơn, nhưng phải giữ nguyên ý nghĩa cốt lõi của nó. Không thêm thông tin mới.
+        """
+        content_to_send = f"{system_prompt}\n\nCâu văn cần diễn đạt lại: '{context}'"
+    
+    else:
+        return None
+
+    try:
+        response = gemini_model.generate_content(content_to_send)
+        return response.text
+    except Exception as e:
+        print(f"Lỗi khi gọi Gemini API: {e}")
+        return "Bot: Rất xin lỗi, hiện tại tôi không thể kết nối với bộ não AI của mình. Vui lòng thử lại sau."
+
+# --- CÁC HÀM XỬ LÝ PHỨC TẠP ---
+def handle_account_details(user_message, numbers):
+    # ... (Giữ nguyên)
+    if not numbers: return None
+    try:
+        acc_id = int(numbers[0])
+        account = Acc.query.get(acc_id)
+        if account:
+            return f"Bot: Thông tin tài khoản ID {acc_id}:\n- Tướng: {account.hero}\n- Skin: {account.skin}\n- Giá: {account.price:,.0f} VNĐ."
+        return f"Bot: Rất tiếc, không tìm thấy tài khoản nào có ID là {acc_id}."
+    except (ValueError, IndexError):
+        return "Bot: ID tài khoản không hợp lệ."
+
+def handle_consultation(user_message, numbers):
+    # ... (Giữ nguyên)
+    price_limit = parse_price_from_message(user_message)
+    if not price_limit:
+        return ask_gemini_ai(task='answer', user_message=user_message)
+    accounts = Acc.query.filter(Acc.price <= price_limit).order_by(Acc.price.desc()).limit(5).all()
+    if not accounts:
+        return f"Bot: Rất tiếc, hiện tại shop không có tài khoản nào trong tầm giá {price_limit:,.0f} VNĐ."
+    context_for_ai = "Dưới đây là một vài tài khoản LMHT có giá dưới hoặc bằng " \
+                     f"{price_limit:,.0f} VNĐ. Hãy dựa vào đây để tư vấn cho khách:\n"
+    for acc in accounts:
+        context_for_ai += f"- ID {acc.id}: Giá {acc.price:,.0f}, có {acc.hero} tướng, {acc.skin} skin.\n"
+    return ask_gemini_ai(task='answer', user_message=user_message, context=context_for_ai)
+
+COMPLEX_HANDLERS = [
+    {"keywords": ["chi tiết", "thông tin", "xem acc"], "handler": handle_account_details},
+    {"keywords": ["tư vấn", "gợi ý", "nên mua"], "handler": handle_consultation},
+]
+
+# --- PHẦN XỬ LÝ SỰ KIỆN SOCKETIO ---
 @socketio.on('connect')
 def handle_connect():
-    """Sự kiện khi một người dùng kết nối vào chat."""
     print(f"Client connected: {request.sid}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    """Sự kiện khi người dùng ngắt kết nối."""
     print(f"Client disconnected: {request.sid}")
     if request.sid in live_chat_queue:
         del live_chat_queue[request.sid]
@@ -23,104 +139,52 @@ def handle_disconnect():
 
 @socketio.on('user_message')
 def handle_user_message(data):
-    """
-    Nhận tin nhắn từ người dùng và cho chatbot xử lý.
-    Đây là bộ não chính của chatbot.
-    """
     user_message = data.get('message', '').lower()
+    original_message = data.get('message', '')
     user_sid = request.sid
-
-    # --- Ưu tiên 1: Chào hỏi & FAQ ---
-    if any(word in user_message for word in ["chào", "hello", "hi"]):
-        bot_response = "Bot: Chào bạn, tôi là trợ lý ảo của ShopACC. Tôi có thể giúp gì cho bạn?"
-        emit('bot_reply', {'message': bot_response}, room=user_sid)
-        return
-
-    if any(word in user_message for word in ["mua", "thanh toán"]):
-        bot_response = "Bot: Để mua tài khoản, bạn chỉ cần nhấn nút 'Xem chi tiết' và sau đó chọn 'Mua ngay'. Hệ thống sẽ hướng dẫn bạn các bước thanh toán."
-        emit('bot_reply', {'message': bot_response}, room=user_sid)
-        return
-
-    if "uy tín" in user_message:
-        bot_response = "Bot: ShopACC cam kết uy tín 100%, với chính sách bảo hành rõ ràng và hỗ trợ khách hàng nhanh chóng. Bạn có thể yên tâm giao dịch."
-        emit('bot_reply', {'message': bot_response}, room=user_sid)
-        return
-
-    if "bảo hành" in user_message:
-        bot_response = "Bot: Shop có chính sách bảo hành 1 đổi 1 trong vòng 7 ngày nếu tài khoản có lỗi phát sinh từ phía shop. Vui lòng liên hệ nhân viên hỗ trợ để được giúp đỡ."
-        emit('bot_reply', {'message': bot_response}, room=user_sid)
-        return
-
-    # --- Ưu tiên 2: Tìm kiếm và truy vấn thông tin ---
     numbers = re.findall(r'\d+', user_message)
-    
-    # Tìm tài khoản theo ID
-    if ("chi tiết" in user_message or "thông tin" in user_message) and numbers:
-        try:
-            acc_id = int(numbers[0])
-            account = Acc.query.get(acc_id)
-            if account:
-                bot_response = f"Bot: Thông tin tài khoản ID {acc_id}:\n- Tướng: {account.hero}\n- Skin: {account.skin}\n- Giá: {account.price:,.0f} VNĐ."
-            else:
-                bot_response = f"Bot: Rất tiếc, tôi không tìm thấy tài khoản nào có ID là {acc_id}."
-            emit('bot_reply', {'message': bot_response}, room=user_sid)
+
+    # 1. Ưu tiên xử lý các câu hỏi đơn giản từ file JSON, sau đó nhờ AI diễn đạt lại
+    for intent in JSON_INTENTS:
+        if any(re.search(r'\b' + re.escape(keyword) + r'\b', user_message) for keyword in intent["keywords"]):
+            # Chọn ngẫu nhiên một câu trả lời gốc
+            base_response = random.choice(intent["responses"])
+            # Nhờ AI diễn đạt lại cho hay hơn
+            final_response = ask_gemini_ai(task='rephrase', context=base_response)
+            emit('bot_reply', {'message': final_response or base_response}, room=user_sid)
             return
-        except (ValueError, IndexError):
-            pass
 
-    # Tìm kiếm tài khoản theo tiêu chí
-    if any(word in user_message for word in ["tìm", "kiếm", "có acc", "acc giá", "acc có"]):
-        query = Acc.query
-        filters_applied = []
+    # 2. Xử lý các chức năng phức tạp
+    for intent in COMPLEX_HANDLERS:
+        if any(re.search(r'\b' + re.escape(keyword) + r'\b', user_message) for keyword in intent["keywords"]):
+            response = intent["handler"](user_message, numbers)
+            if response:
+                emit('bot_reply', {'message': response}, room=user_sid)
+                return
 
-        if "skin" in user_message and numbers:
-            skin_count = int(numbers[0])
-            query = query.filter(Acc.skin >= skin_count)
-            filters_applied.append(f"có từ {skin_count} skin")
-        
-        if "tướng" in user_message or "hero" in user_message and numbers:
-            hero_count = int(numbers[0])
-            query = query.filter(Acc.hero >= hero_count)
-            filters_applied.append(f"có từ {hero_count} tướng")
-
-        if ("giá dưới" in user_message or "giá nhỏ hơn" in user_message) and numbers:
-            price_limit = int(numbers[0])
-            query = query.filter(Acc.price <= price_limit)
-            filters_applied.append(f"giá dưới {price_limit:,.0f} VNĐ")
-
-        results = query.limit(3).all()
-
-        if results:
-            criteria_str = " và ".join(filters_applied)
-            bot_response = f"Bot: Tôi tìm thấy vài tài khoản phù hợp với tiêu chí ({criteria_str}):\n"
-            for acc in results:
-                bot_response += f"- ID: {acc.id}, Giá: {acc.price:,.0f}, Skin: {acc.skin}, Tướng: {acc.hero}\n"
-        else:
-            bot_response = "Bot: Rất tiếc, không có tài khoản nào phù hợp với yêu cầu của bạn."
-            
-        emit('bot_reply', {'message': bot_response}, room=user_sid)
+    # 3. Nếu không khớp, hỏi AI chung chung
+    ai_response = ask_gemini_ai(task='answer', user_message=original_message)
+    if ai_response:
+        emit('bot_reply', {'message': ai_response}, room=user_sid)
         return
 
-    # --- Ưu tiên 3: Yêu cầu gặp nhân viên hoặc các câu hỏi khác ---
-    if any(word in user_message for word in ["nhân viên", "người", "admin", "hỗ trợ", "tư vấn"]):
-        bot_response = "Bot: Vui lòng chờ trong giây lát, tôi sẽ kết nối bạn với nhân viên hỗ trợ."
-    else:
-        # Nếu không có quy tắc nào khớp, mặc định chuyển cho admin
-        bot_response = "Bot: Tôi chưa hiểu rõ câu hỏi của bạn. Vui lòng chờ để được kết nối với nhân viên hỗ trợ."
+    # 4. Nếu AI cũng không xử lý được, chuyển cho admin
+    fallback_to_live_chat(user_sid, original_message)
 
-    # Gửi tin nhắn chờ cho người dùng và gửi yêu cầu cho admin
-    emit('bot_reply', {'message': bot_response}, room=user_sid)
+def fallback_to_live_chat(user_sid, original_message):
     if user_sid not in live_chat_queue:
-        live_chat_queue[user_sid] = user_message
-        socketio.emit('livechat_request', {'sid': user_sid, 'message': data.get('message')})
+        live_chat_queue[user_sid] = original_message
+        bot_response = "Bot: Tôi chưa hiểu rõ câu hỏi của bạn. Vui lòng chờ để được kết nối với nhân viên hỗ trợ."
+    else:
+        bot_response = "Bot: Nhân viên hỗ trợ sẽ trả lời bạn ngay. Vui lòng chờ một chút."
+    
+    emit('bot_reply', {'message': bot_response}, room=user_sid)
+    socketio.emit('livechat_request', {'sid': user_sid, 'message': original_message})
 
 @socketio.on('admin_message')
 def handle_admin_message(data):
-    """Nhận tin nhắn từ admin và gửi cho người dùng cụ thể."""
     target_user_sid = data.get('sid')
     admin_msg = data.get('message')
-    
     if target_user_sid in live_chat_queue:
         del live_chat_queue[target_user_sid]
-
     emit('live_reply', {'message': f"Admin: {admin_msg}"}, room=target_user_sid)

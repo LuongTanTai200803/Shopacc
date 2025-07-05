@@ -10,11 +10,14 @@ import redis
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from app.config import Config
-from app.extensions import db, jwt, migratie, cache
+
+from app.extensions import db, jwt, migratie, cache, socketio 
 from app.log_request import setup_request_logger
 from .error_handler import register_error_handlers
 from app.routes import auth_bp, acc_bp, order_bp
 from flask_cors import CORS
+
+from . import sockets 
 
 import logging
 logger = logging.getLogger(__name__) 
@@ -36,6 +39,11 @@ def create_app(config_class = Config):
         jwt.init_app(app)
         migratie.init_app(app, db)
         cache.init_app(app)
+        
+        # --- THÊM DÒNG NÀY ---
+        # Khởi tạo SocketIO với app và cấu hình CORS cho nó
+        socketio.init_app(app, cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
+
         logger.error(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")
         from app.models import User, Acc 
         with app.app_context():

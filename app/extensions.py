@@ -6,5 +6,5 @@ from flask_caching import Cache
 
 db = SQLAlchemy()
 jwt= JWTManager()
-migratie = Migrate()
+migrate = Migrate()
 cache = Cache()

@@ -1,9 +1,9 @@
 from functools import wraps
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
-from app.extensions import db, jwt
-from app.models.acc import Acc
-from app.models.user import User
+from ..extensions import db, jwt
+from ..models.acc import Acc
+from ..models.user import User
 
 
 

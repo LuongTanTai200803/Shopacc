@@ -1,13 +1,11 @@
 from functools import wraps
 import logging
-
-
-from app.extensions import db, cache
+from ..extensions import db, cache
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
 
-from app.models.user import User
-from app.models.acc import Acc
+from ..models.user import User
+from ..models.acc import Acc
 
 import logging
 
@@ -60,7 +58,6 @@ def get_acc():
         }
         for acc in accs
     ]
-    logger.error("Truy cập route thành công")
     return jsonify(acc_data), 200
 
 @acc_bp.route('/<int:acc_id>', methods=['GET'])

@@ -17,7 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gevent gevent-websocket
 
 # Copy toàn bộ project code vào container
-COPY . .
+
+COPY . /app
 
 # Expose cổng ứng dụng
 EXPOSE 8000

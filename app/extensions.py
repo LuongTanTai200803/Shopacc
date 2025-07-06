@@ -6,6 +6,7 @@ from flask_socketio import SocketIO
 
 db = SQLAlchemy()
 jwt = JWTManager()
-migratie = Migrate()
+migrate = Migrate()
 cache = Cache()
 socketio = SocketIO()
+

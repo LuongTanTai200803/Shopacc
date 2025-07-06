@@ -9,14 +9,17 @@ API cho hệ thống bán tài khoản game
 - [x] Phân quyền người dùng theo token (admin/user)
 
 ### Tech stack:
-Python (Flask), REST API, SQLAlchemy + MySQL/PostgreSQL, Redis, Deploy: Railway -> (Nginx) + Gunicorn, JWT.
+
+Backend: Python (Flask), REST API, SQLAlchemy + MySQL/PostgreSQL, JWT,
+DevOps: Deploy Railway -> (Nginx) + Gunicorn, CD AWS
+
 
 ## ⚙️ Cài đặt (Local)
 
 ```bash
 # 1. Clone project
 git clone https://github.com/LuongTanTai200803/Shopacc.git
-cd Shopacc/backend/
+cd Shopacc/
 
 # 2. Tạo môi trường ảo & cài package
 python -m venv venv

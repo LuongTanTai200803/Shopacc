@@ -1,4 +1,4 @@
-from app.extensions import db
+from ..extensions import db
 
 class Acc(db.Model):
     __tablename__ = "accs"

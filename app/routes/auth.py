@@ -1,9 +1,11 @@
 from functools import wraps
+import os
 
-from flask import Blueprint, request, jsonify
+import firebase_admin
+from flask import Blueprint, json, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
-from app.extensions import db, jwt, cache
-from app.models.user import User
+from ..extensions import db, jwt, cache
+from ..models.user import User
 
 
 auth_bp = Blueprint("auth",__name__)
@@ -43,7 +45,7 @@ def signup():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    logger.error("Đã vào api")
+    logger.debug("Đã vào api")
     data = request.get_json()
     username = data['username']
     password = data['password']
@@ -86,7 +88,7 @@ def profile():
 
     user_data = {
             "id": user.id,
-            "username": user.username,
+            "username": user.username or user.email,
             "coin": user.coin
         }
 
@@ -99,6 +101,9 @@ def put_coin():
     user_id = data.get("id_guest")
     user = User.query.filter_by(id=user_id).first()
 
+    if not user:
+        return jsonify({"msg": "User not exist"}), 404
+    
     coin = int(data['coin'])
     if   coin < 0 :
         return jsonify({"msg": "wrong value"}),400
@@ -117,6 +122,54 @@ def protected():
                     "user_id": user_id}), 200
 
 
+from firebase_admin import credentials, auth
 
+json_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
+creds_dict = json.loads(json_creds)
 
+# Tạo credential từ dict
+cred = credentials.Certificate(creds_dict)
+firebase_admin.initialize_app(cred)
+
+@auth_bp.route("/google", methods=["POST"])
+def google_login():
+    data = request.get_json()
+    id_token = data.get("idToken")
+    logger.info(f"[Google Login] id_token: {id_token}")
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        google_id = decoded_token["uid"]
+        email = decoded_token.get("email")
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            user = User(email=email, google_id=google_id)
+            db.session.add(user)
+            db.session.commit()
+
+            # Kiểm tra token trong Redis
+        cached_token = cache.get(f"user_token:{user.id}")
+        if cached_token:
+            return jsonify({
+                "msg": "Đăng nhập thành công (token cũ)",
+                "usernaem": user.email,
+                "coin": user.coin,
+                "access_token": cached_token
+            }), 200
+
+        # Nếu không có token cũ, tạo mới
+        access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
+        cache.set(f"user_token:{user.id}", access_token, timeout=900)
+
+        return jsonify({
+            "coin": user.coin,
+            "username": user.email,
+            "access_token": access_token}),200
+
+    except Exception as e:
+        import traceback
+        print("[Firebase Verify Error]", traceback.format_exc())
+        return jsonify({"error": "Server error", "detail": str(e)}), 401

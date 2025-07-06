@@ -14,7 +14,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy toàn bộ project code vào container
-COPY . .
+
+COPY . /app
 
 # Expose cổng ứng dụng (Railway sẽ tự động nhận diện)
 EXPOSE 8000

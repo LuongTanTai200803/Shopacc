@@ -2,3 +2,17 @@
 venv/
 ../
 __pycache__/
+
+
+wal/
+
+logs/
+start-logging.sh
+loki-config.yaml
+loki-linux-amd64
+loki-linux-amd64.zip
+loki.log
+prometheus.yml
+promtail-config.yaml
+promtail.log
+

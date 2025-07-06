@@ -1,0 +1,79 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "keywords": ["chào", "hello", "hi", "xin chào", "shop ơi", "chao"],
+      "responses": [
+        "Bot: Chào bạn, tôi là trợ lý ảo của ShopACC. Tôi có thể giúp gì cho bạn?",
+        "Bot: ShopACC xin chào! Bạn cần hỗ trợ gì ạ?",
+        "Bot: Xin chào, bạn có câu hỏi nào về các tài khoản của shop không?"
+      ]
+    },
+    {
+      "tag": "purchase_info",
+      "keywords": ["mua", "thanh toán", "mua bán", "giao dịch", "trả tiền"],
+      "responses": [
+        "Bot: Để mua tài khoản, bạn chỉ cần nhấn nút 'Xem chi tiết' và sau đó chọn 'Mua ngay'. Hệ thống sẽ hướng dẫn bạn các bước thanh toán.",
+        "Bot: Quá trình mua và thanh toán hoàn toàn tự động. Bạn chỉ cần làm theo hướng dẫn sau khi chọn tài khoản.",
+        "Bot: Shop hỗ trợ thanh toán qua chuyển khoản và ví MoMo. Thông tin chi tiết sẽ có ở bước thanh toán bạn nhé."
+      ]
+    },
+    {
+      "tag": "trustworthiness",
+      "keywords": ["uy tín", "uy tin", "uytins", "tin tưởng", "an toàn", "lừa đảo"],
+      "responses": [
+        "Bot: ShopACC đã hoạt động nhiều năm và luôn đặt uy tín lên hàng đầu. Bạn có thể yên tâm giao dịch nhé!",
+        "Bot: Bạn hoàn toàn có thể tin tưởng shop. Mọi giao dịch đều được đảm bảo an toàn và minh bạch.",
+        "Bot: Uy tín là yếu tố sống còn của ShopACC. Chúng tôi cam kết mang lại trải nghiệm tốt nhất cho khách hàng."
+      ]
+    },
+    {
+      "tag": "warranty",
+      "keywords": ["bảo hành", "bao hanh", "đổi trả", "hoàn tiền", "bị lỗi"],
+      "responses": [
+        "Bot: Shop có chính sách bảo hành 1 đổi 1 trong vòng 7 ngày nếu tài khoản có lỗi phát sinh từ phía shop.",
+        "Bot: Mọi tài khoản đều được bảo hành. Nếu có vấn đề không đúng như mô tả, bạn sẽ được hỗ trợ ngay lập tức."
+      ]
+    },
+    {
+      "tag": "account_status",
+      "keywords": ["còn không", "con khong", "bán chưa", "ban chua", "còn hàng"],
+      "responses": [
+        "Bot: Nếu bạn còn thấy tài khoản được hiển thị trên trang web thì nghĩa là vẫn còn hàng bạn nhé.",
+        "Bot: Khi có người mua, tài khoản sẽ tự động được ẩn đi. Nếu bạn vẫn thấy nó thì cứ yên tâm mua nhé."
+      ]
+    },
+    {
+      "tag": "account_info",
+      "keywords": ["trắng thông tin", "trang thong tin", "full thông tin", "đổi được không"],
+      "responses": [
+        "Bot: Shop cam kết 100% các tài khoản bán ra đều là tài khoản trắng thông tin.",
+        "Bot: Bạn có thể thay đổi email, số điện thoại, mật khẩu ngay sau khi nhận tài khoản."
+      ]
+    },
+    {
+      "tag": "transaction_time",
+      "keywords": ["bao lâu", "thời gian", "nhận acc", "giao acc"],
+      "responses": [
+        "Bot: Quá trình giao dịch hoàn toàn tự động. Ngay sau khi bạn thanh toán thành công, thông tin tài khoản và mật khẩu sẽ được gửi cho bạn ngay lập tức.",
+        "Bot: Bạn sẽ nhận được thông tin tài khoản ngay lập tức sau khi hoàn tất thanh toán, không cần phải chờ đợi đâu ạ."
+      ]
+    },
+    {
+      "tag": "gratitude",
+      "keywords": ["cảm ơn", "cam on", "thank you", "thanks", "ok shop"],
+      "responses": [
+        "Bot: Không có gì ạ! Bạn cần hỗ trợ thêm gì cứ hỏi nhé.",
+        "Bot: Rất vui được giúp bạn!"
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "keywords": ["tạm biệt", "bye", "bai bai"],
+      "responses": [
+        "Bot: Tạm biệt bạn! Chúc bạn một ngày tốt lành.",
+        "Bot: Hẹn gặp lại bạn nhé."
+      ]
+    }
+  ]
+}

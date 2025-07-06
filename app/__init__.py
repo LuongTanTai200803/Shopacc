@@ -9,17 +9,23 @@ from flask import Flask
 from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
+
 from .config import Config
 from .extensions import db, jwt, migrate, cache
 from .log_request import setup_request_logger
+
 from .error_handler import register_error_handlers
 from .routes import auth_bp, acc_bp, order_bp
 from flask_cors import CORS
+
+
+from . import sockets 
 
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter
 from prometheus_flask_exporter import PrometheusMetrics
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+
 
 import logging
 logger = logging.getLogger("flask.app")
@@ -51,6 +57,19 @@ def create_app(config_class = Config):
         jwt.init_app(app)
         migrate.init_app(app, db, directory="./migrations")
         cache.init_app(app)
+
+        
+        # --- THÊM DÒNG NÀY ---
+        # Khởi tạo SocketIO với app và cấu hình CORS cho nó
+        socketio.init_app(app, cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
+
+        from app.models import User, Acc 
+        with app.app_context():
+            print("Running DB migrations...")
+            upgrade()
+            print("DB migrations completed.")
+            
+
 
         logger.debug(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")
 

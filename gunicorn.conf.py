@@ -1,9 +1,9 @@
 import multiprocessing
 import sys
 
-# Gunicorn config variables
 bind = "0.0.0.0:8000"
 workers = 2
+worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'
 threads = 2
 timeout = 120
 loglevel = "debug"

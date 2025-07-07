@@ -182,8 +182,10 @@ def setup_logging():
     flask_logger.setLevel(logging.DEBUG)
     flask_logger.addHandler(file_handler)
 
+    loki_url = os.getenv("LOKI_URL", "http://localhost:3100")
+
     # Loki HTTP
-    loki_handler = LokiHandler()
+    loki_handler = LokiHandler(loki_url=loki_url)
     loki_handler.setLevel(logging.INFO)
     loki_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(loki_handler)

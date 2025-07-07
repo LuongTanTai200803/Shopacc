@@ -4,12 +4,28 @@ import requests
 import json
 from datetime import datetime
 
+import logging
+
+# Tắt log DEBUG cho requests và urllib3
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+
 class LokiHandler(logging.Handler):
+    def __init__(self, loki_url, labels=None):
+        super().__init__()
+        self.loki_url = loki_url or os.getenv("LOKI_URL", "http://localhost:3100")
+        self.labels = labels or {
+            "app": os.getenv("APP_NAME", "flask-backend")
+        }
+        self.logger = logging.getLogger("loki_handler")  # logger riêng để tránh loop
+
     def emit(self, record):
+        if record.name == "loki_handler":
+            return  # tránh loop chính nó
+
         try:
             log_entry = self.format(record)
             timestamp = str(int(datetime.utcnow().timestamp() * 1e9))  # nanoseconds
-
             payload = {
                 "streams": [
                     {
@@ -19,9 +35,9 @@ class LokiHandler(logging.Handler):
                 ]
             }
 
-            loki_host = os.getenv("LOKI_URL", "http://<YOUR_EC2_PUBLIC_IP>:3100")
+            
             requests.post(
-                url=f"{loki_host}/loki/api/v1/push",
+                url=f"{self.loki_url}/loki/api/v1/push",
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(payload),
                 timeout=1

@@ -184,13 +184,12 @@ def setup_logging():
 
     # Loki HTTP
     loki_handler = LokiHandler()
-    loki_handler.setFormatter(log_format)
+    loki_handler.setLevel(logging.INFO)
+    loki_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(loki_handler)
 
     logging.getLogger('werkzeug').setLevel(logging.INFO)
 
-
- 
 
 def wait_for_db(app, db, retries=5, delay=2):
     last_exception = None

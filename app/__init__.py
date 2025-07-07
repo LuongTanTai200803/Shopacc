@@ -10,6 +10,8 @@ from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
+from .logger import LokiHandler
+
 from .config import Config
 from .extensions import db, jwt, migrate, cache, socketio
 from .log_request import setup_request_logger
@@ -25,6 +27,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter
 from prometheus_flask_exporter import PrometheusMetrics
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+
 
 
 import logging
@@ -142,6 +145,7 @@ def create_app(config_class = Config):
             # raise lỗi ra ngoài để Gunicorn có thể biết
             raise
 
+
 def setup_logging():
     log_level = logging.DEBUG if os.getenv("FLASK_ENV") == "development" else logging.INFO
 
@@ -162,22 +166,28 @@ def setup_logging():
     if logger.hasHandlers():
         logger.handlers.clear()
 
-    # Ghi ra terminal
+    # 1. Ghi ra terminal
     stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(stream_handler)
     
-    # Ghi ra file
+    # 2. Ghi ra file
     file_handler = RotatingFileHandler('logs/app.log', maxBytes=10_000_000, backupCount=3)
     file_handler.setFormatter(logging.Formatter(log_format))
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
 
+    # 3. Ghi log từ Flask
     flask_logger = logging.getLogger('flask.app')
-    flask_logger.setLevel(logging.INFO)
+    flask_logger.setLevel(logging.DEBUG)
     flask_logger.addHandler(file_handler)
 
-    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    # Loki HTTP
+    loki_handler = LokiHandler()
+    loki_handler.setFormatter(log_format)
+    logger.addHandler(loki_handler)
+
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 
  

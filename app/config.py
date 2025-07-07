@@ -31,6 +31,7 @@ class Config:
 class Testing(Config):
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:3366@localhost:5432/db_shopacc"
     TESTING = True
+    FLASK_ENV= "development"
 
 class Production(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
@@ -45,6 +46,6 @@ class Production(Config):
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
     CACHE_DEFAULT_TIMEOUT = 30
-    FLASK_ENV= "development"
+    FLASK_ENV= "production"
 
     

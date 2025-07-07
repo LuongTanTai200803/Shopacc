@@ -2,7 +2,7 @@ print("Main file loaded")
 
 import os
 from app import create_app, setup_logging, wait_for_db
-from app.config import Production
+from app.config import Production, Testing
 from app.extensions import socketio, db # Import socketio và db
 
 from alembic.command import upgrade

@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from .config import Config
-from .extensions import db, jwt, migrate, cache
+from .extensions import db, jwt, migrate, cache, socketio
 from .log_request import setup_request_logger
 
 from .error_handler import register_error_handlers
@@ -58,8 +58,6 @@ def create_app(config_class = Config):
         migrate.init_app(app, db, directory="./migrations")
         cache.init_app(app)
 
-        
-        # --- THÊM DÒNG NÀY ---
         # Khởi tạo SocketIO với app và cấu hình CORS cho nó
         socketio.init_app(app, cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
 

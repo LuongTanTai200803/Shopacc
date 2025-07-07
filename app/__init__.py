@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from .config import Config
-from .extensions import db, jwt, migrate, cache
+from .extensions import db, jwt, migrate, cache, socketio
 from .log_request import setup_request_logger
 
 from .error_handler import register_error_handlers

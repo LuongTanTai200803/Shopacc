@@ -1,7 +1,11 @@
 import multiprocessing
 import sys
+import os # Thêm dòng này
 
-bind = "0.0.0.0:8000"
+# Gunicorn config variables
+# Sửa dòng bind để đọc cổng từ biến môi trường của Railway
+bind = f"0.0.0.0:{os.environ.get('PORT', 8000)}"
+
 workers = 2
 worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'
 threads = 2

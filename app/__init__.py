@@ -58,8 +58,6 @@ def create_app(config_class = Config):
         migrate.init_app(app, db, directory="./migrations")
         cache.init_app(app)
 
-        
-        # --- THÊM DÒNG NÀY ---
         # Khởi tạo SocketIO với app và cấu hình CORS cho nó
         socketio.init_app(app, cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
 

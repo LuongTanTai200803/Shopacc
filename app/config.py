@@ -46,6 +46,6 @@ class Production(Config):
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
     CACHE_DEFAULT_TIMEOUT = 30
-    FLASK_ENV= "production"
+    FLASK_ENV= "development"
 
     

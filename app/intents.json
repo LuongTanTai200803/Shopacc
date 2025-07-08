@@ -127,6 +127,38 @@
       ]
     },
     {
+      "tag": "comparison",
+      "keywords": ["so sánh", "so sanh", "khác gì", "cái nào hơn", "nên chọn"],
+      "responses": [
+        "Bot: Để so sánh chi tiết, bạn có thể mở thông tin của hai tài khoản trong hai tab khác nhau nhé. Các thông số chính cần quan tâm là số lượng Tướng, Trang phục và Rank (nếu có).",
+        "Bot: Việc lựa chọn phụ thuộc nhiều vào sở thích cá nhân ạ. Bạn có thể dựa vào số skin hoặc tướng yêu thích của mình. Nếu vẫn phân vân, hãy kết nối với nhân viên để được tư vấn trực tiếp nhé!"
+      ]
+    },
+    {
+      "tag": "restock_notification",
+      "keywords": ["khi nào có acc mới", "hàng mới", "thông báo khi có", "acc vip"],
+      "responses": [
+        "Bot: Shop cập nhật tài khoản mới liên tục mỗi ngày. Bạn hãy thường xuyên truy cập trang chủ để không bỏ lỡ những tài khoản hot nhất nhé! 🔥",
+        "Bot: Hiện tại shop chưa có tính năng thông báo khi có hàng mới. Bạn vui lòng theo dõi trang web hoặc fanpage để cập nhật nhanh nhất ạ."
+      ]
+    },
+    {
+      "tag": "payment_issue",
+      "keywords": ["lỗi thanh toán", "loi thanh toan", "trừ tiền rồi", "không nhận được acc"],
+      "responses": [
+        "Bot: Rất xin lỗi vì sự cố bạn gặp phải. Bạn vui lòng kết nối ngay với nhân viên hỗ trợ, cung cấp mã giao dịch hoặc ảnh chụp màn hình để được xử lý nhanh nhất!",
+        "Bot: Đừng lo lắng, mọi giao dịch đều được ghi lại. Bạn hãy liên hệ nhân viên hỗ trợ để được kiểm tra và giải quyết ngay lập tức nhé."
+      ]
+    },
+    {
+      "tag": "website_account",
+      "keywords": ["đổi mật khẩu web", "quên mật khẩu shop", "lịch sử mua hàng", "tài khoản của tôi"],
+      "responses": [
+        "Bot: Để quản lý tài khoản của bạn trên web ShopACC (ví dụ: xem lịch sử mua hàng), bạn vui lòng vào trang 'Hồ sơ cá nhân' sau khi đăng nhập nhé.",
+        "Bot: Nếu bạn quên mật khẩu của tài khoản trên web này, bạn có thể dùng chức năng 'Quên mật khẩu' ở trang đăng nhập ạ."
+      ]
+    },
+    {
       "tag": "goodbye",
       "keywords": ["tạm biệt", "bye", "bai bai", "bai"],
       "responses": [

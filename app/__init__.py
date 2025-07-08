@@ -190,7 +190,7 @@ def setup_logging():
     loki_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(loki_handler)
 
-    logging.getLogger('werkzeug').setLevel(logging.INFO)
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
 
 def wait_for_db(app, db, retries=5, delay=2):

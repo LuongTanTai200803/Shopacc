@@ -9,6 +9,7 @@ def setup_request_logger(app):
 
     @app.after_request
     def log_response(response):
+        
         if not hasattr(request, "start_time"):
             return response
 
@@ -42,11 +43,12 @@ def setup_request_logger(app):
             f"IP:{log_params['ip']} User:{log_params['user']}"
         )
 
+        logger = logging.getLogger("request_middleware")
         if status >= 500:
-            logging.error(log_message)
+            logger.error(log_message)
         elif status >= 400:
-            logging.warning(log_message)
+            logger.warning(log_message)
         else:
-            logging.info(log_message)
+            logger.info(log_message)
 
         return response

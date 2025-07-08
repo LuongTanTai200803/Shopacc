@@ -1,3 +1,4 @@
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -6,7 +7,7 @@ from flask_socketio import SocketIO
 
 db = SQLAlchemy()
 jwt = JWTManager()
-migrate = Migrate()
+migrate = Migrate() 
 cache = Cache()
-socketio = SocketIO()
-
+redis_url = os.environ.get('CACHE_REDIS_URL')
+socketio = SocketIO(async_mode='gevent', message_queue=redis_url)

@@ -22,7 +22,9 @@ class LokiHandler(logging.Handler):
     def emit(self, record):
         if record.name == "loki_handler":
             return  # tránh loop chính nó
-
+        if record.name.startswith("geventwebsocket.handler"):
+            return  # Bỏ qua hoàn toàn log này
+        
         try:
             log_entry = self.format(record)
             timestamp = str(int(datetime.utcnow().timestamp() * 1e9))  # nanoseconds
@@ -44,3 +46,7 @@ class LokiHandler(logging.Handler):
             )
         except Exception as e:
             print("Failed to send log to Loki:", e)
+
+class ExcludeGeventFilter(logging.Filter):
+    def filter(self, record):
+        return not record.name.startswith("geventwebsocket.handler")

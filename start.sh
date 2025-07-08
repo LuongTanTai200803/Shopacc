@@ -2,7 +2,6 @@
 
 set -e  # Dừng script nếu có bất kỳ lỗi nào
 
-
 echo "🚀 Khởi động Gunicorn server..."
 exec gunicorn wsgi:app -c gunicorn.conf.py
 

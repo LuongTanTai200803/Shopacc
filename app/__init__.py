@@ -10,7 +10,7 @@ from flask_migrate import upgrade
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-from .logger import LokiHandler
+from .logger import ExcludeGeventFilter, LokiHandler
 
 from .config import Config
 from .extensions import db, jwt, migrate, cache, socketio
@@ -186,6 +186,7 @@ def setup_logging():
 
     # Loki HTTP
     loki_handler = LokiHandler(loki_url=loki_url)
+    loki_handler.addFilter(ExcludeGeventFilter())
     loki_handler.setLevel(logging.INFO)
     loki_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(loki_handler)

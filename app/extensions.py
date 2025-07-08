@@ -9,4 +9,4 @@ jwt = JWTManager()
 migrate = Migrate()
 cache = Cache()
 socketio = SocketIO()
-socketio = SocketIO(async_mode='gevent', message_queue=redis_url)
+

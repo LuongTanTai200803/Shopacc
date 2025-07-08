@@ -4,25 +4,25 @@
       "tag": "greeting",
       "keywords": ["chào", "hello", "hi", "xin chào", "shop ơi", "chao"],
       "responses": [
-        "Bot: Chào bạn, tôi là trợ lý ảo của ShopACC. Tôi có thể giúp gì cho bạn?",
-        "Bot: ShopACC xin chào! Bạn cần hỗ trợ gì ạ?",
-        "Bot: Xin chào, bạn có câu hỏi nào về các tài khoản của shop không?"
+        "Bot: Chào bạn, tôi là trợ lý ảo của ShopACC. Tôi có thể giúp gì cho bạn hôm nay? 🚀",
+        "Bot: ShopACC xin chào! Bạn đang tìm kiếm một tài khoản LMHT ưng ý phải không ạ?",
+        "Bot: Xin chào, bạn có câu hỏi nào về các tài khoản của shop không? Đừng ngần ngại hỏi nhé!"
       ]
     },
     {
       "tag": "purchase_info",
       "keywords": ["mua", "thanh toán", "mua bán", "giao dịch", "trả tiền"],
       "responses": [
-        "Bot: Để mua tài khoản, bạn chỉ cần nhấn nút 'Xem chi tiết' và sau đó chọn 'Mua ngay'. Hệ thống sẽ hướng dẫn bạn các bước thanh toán.",
-        "Bot: Quá trình mua và thanh toán hoàn toàn tự động. Bạn chỉ cần làm theo hướng dẫn sau khi chọn tài khoản.",
-        "Bot: Shop hỗ trợ thanh toán qua chuyển khoản và ví MoMo. Thông tin chi tiết sẽ có ở bước thanh toán bạn nhé."
+        "Bot: Để sở hữu một tài khoản, bạn chỉ cần nhấn nút 'Xem chi tiết' và sau đó chọn 'Mua ngay'. Hệ thống tự động sẽ hướng dẫn bạn từng bước ạ.",
+        "Bot: Quá trình mua và thanh toán tại ShopACC hoàn toàn tự động. Bạn chỉ cần làm theo hướng dẫn sau khi chọn được tài khoản yêu thích.",
+        "Bot: Shop hỗ trợ thanh toán tiện lợi qua chuyển khoản ngân hàng và ví MoMo. Thông tin chi tiết sẽ có ở bước thanh toán bạn nhé."
       ]
     },
     {
       "tag": "trustworthiness",
       "keywords": ["uy tín", "uy tin", "uytins", "tin tưởng", "an toàn", "lừa đảo"],
       "responses": [
-        "Bot: ShopACC đã hoạt động nhiều năm và luôn đặt uy tín lên hàng đầu. Bạn có thể yên tâm giao dịch nhé!",
+        "Bot: Chắc chắn rồi! ShopACC đã hoạt động nhiều năm và luôn đặt uy tín lên hàng đầu. Bạn có thể yên tâm giao dịch nhé! 👍",
         "Bot: Bạn hoàn toàn có thể tin tưởng shop. Mọi giao dịch đều được đảm bảo an toàn và minh bạch.",
         "Bot: Uy tín là yếu tố sống còn của ShopACC. Chúng tôi cam kết mang lại trải nghiệm tốt nhất cho khách hàng."
       ]
@@ -32,7 +32,8 @@
       "keywords": ["bảo hành", "bao hanh", "đổi trả", "hoàn tiền", "bị lỗi"],
       "responses": [
         "Bot: Shop có chính sách bảo hành 1 đổi 1 trong vòng 7 ngày nếu tài khoản có lỗi phát sinh từ phía shop.",
-        "Bot: Mọi tài khoản đều được bảo hành. Nếu có vấn đề không đúng như mô tả, bạn sẽ được hỗ trợ ngay lập tức."
+        "Bot: Mọi tài khoản đều được bảo hành. Nếu có vấn đề không đúng như mô tả, bạn sẽ được hỗ trợ ngay lập tức.",
+        "Bot: Bạn vui lòng kết nối với nhân viên hỗ trợ để được hướng dẫn chi tiết về quy trình bảo hành nhé."
       ]
     },
     {
@@ -40,36 +41,58 @@
       "keywords": ["còn không", "con khong", "bán chưa", "ban chua", "còn hàng"],
       "responses": [
         "Bot: Nếu bạn còn thấy tài khoản được hiển thị trên trang web thì nghĩa là vẫn còn hàng bạn nhé.",
-        "Bot: Khi có người mua, tài khoản sẽ tự động được ẩn đi. Nếu bạn vẫn thấy nó thì cứ yên tâm mua nhé."
+        "Bot: Khi có người mua, tài khoản sẽ tự động được ẩn đi. Nếu bạn vẫn thấy nó thì cứ yên tâm 'chốt đơn' nhé! 😉",
+        "Bot: Dạ vẫn còn ạ. Bạn có thể tiến hành giao dịch ngay."
       ]
     },
     {
       "tag": "account_info",
-      "keywords": ["trắng thông tin", "trang thong tin", "full thông tin", "đổi được không"],
+      "keywords": ["trắng thông tin", "trang thong tin", "full thông tin", "đổi được không", "thay đổi thông tin"],
       "responses": [
-        "Bot: Shop cam kết 100% các tài khoản bán ra đều là tài khoản trắng thông tin.",
-        "Bot: Bạn có thể thay đổi email, số điện thoại, mật khẩu ngay sau khi nhận tài khoản."
+        "Bot: Shop cam kết 100% các tài khoản bán ra đều là tài khoản trắng thông tin, bạn có thể thay đổi mọi thứ.",
+        "Bot: Chắc chắn rồi! Bạn có toàn quyền thay đổi email, số điện thoại, mật khẩu ngay sau khi nhận tài khoản.",
+        "Bot: Tất cả tài khoản đều có đầy đủ thông tin để bạn có thể thay đổi và sở hữu hoàn toàn, không lo tranh chấp."
       ]
     },
     {
       "tag": "transaction_time",
       "keywords": ["bao lâu", "thời gian", "nhận acc", "giao acc"],
       "responses": [
-        "Bot: Quá trình giao dịch hoàn toàn tự động. Ngay sau khi bạn thanh toán thành công, thông tin tài khoản và mật khẩu sẽ được gửi cho bạn ngay lập tức.",
-        "Bot: Bạn sẽ nhận được thông tin tài khoản ngay lập tức sau khi hoàn tất thanh toán, không cần phải chờ đợi đâu ạ."
+        "Bot: Giao dịch hoàn toàn tự động! Ngay sau khi bạn thanh toán thành công, thông tin tài khoản sẽ được gửi cho bạn ngay lập tức.",
+        "Bot: Bạn sẽ nhận được thông tin tài khoản ngay lập tức sau khi hoàn tất thanh toán, không cần phải chờ đợi đâu ạ.",
+        "Bot: Dạ, thông tin được gửi tự động qua hệ thống nên rất nhanh chóng, chỉ mất vài giây sau khi thanh toán thôi ạ."
+      ]
+    },
+    {
+      "tag": "search_functionality",
+      "keywords": ["tìm kiếm", "tim kiem", "lọc", "rank", "khung", "bậc", "skin hiếm", "trang phục"],
+      "responses": [
+        "Bot: Để tìm tài khoản theo yêu cầu cụ thể như Rank hoặc Skin, bạn vui lòng sử dụng bộ lọc trên trang web để có kết quả chính xác và nhanh nhất nhé!",
+        "Bot: Chức năng tìm kiếm và bộ lọc của shop rất mạnh mẽ đó ạ. Bạn hãy thử dùng nó để tìm tài khoản có Rank hoặc Skin mình mong muốn.",
+        "Bot: Bạn muốn tìm acc có đặc điểm riêng? Hãy dùng ngay bộ lọc sản phẩm của shop để tìm chính xác tài khoản bạn cần nhé."
+      ]
+    },
+    {
+      "tag": "contact_support",
+      "keywords": ["nhân viên", "admin", "hỗ trợ", "người thật", "tư vấn viên", "gap nguoi"],
+      "responses": [
+        "Bot: Đã hiểu. Vui lòng chờ trong giây lát, tôi sẽ kết nối bạn với nhân viên hỗ trợ.",
+        "Bot: Chắc chắn rồi, tôi sẽ chuyển yêu cầu của bạn đến một nhân viên ngay bây giờ.",
+        "Bot: Bot đã ghi nhận yêu cầu. Một nhân viên hỗ trợ sẽ tham gia cuộc trò chuyện ngay."
       ]
     },
     {
       "tag": "gratitude",
-      "keywords": ["cảm ơn", "cam on", "thank you", "thanks", "ok shop"],
+      "keywords": ["cảm ơn", "cam on", "thank you", "thanks", "ok shop", "oke"],
       "responses": [
-        "Bot: Không có gì ạ! Bạn cần hỗ trợ thêm gì cứ hỏi nhé.",
-        "Bot: Rất vui được giúp bạn!"
+        "Bot: Không có gì ạ! Bạn cần hỗ trợ thêm gì cứ hỏi nhé. 😊",
+        "Bot: Rất vui được giúp bạn!",
+        "Bot: Dạ, không có gì ạ. Chúc bạn tìm được tài khoản ưng ý!"
       ]
     },
     {
       "tag": "goodbye",
-      "keywords": ["tạm biệt", "bye", "bai bai"],
+      "keywords": ["tạm biệt", "bye", "bai bai", "bai"],
       "responses": [
         "Bot: Tạm biệt bạn! Chúc bạn một ngày tốt lành.",
         "Bot: Hẹn gặp lại bạn nhé."

@@ -10,6 +10,42 @@
       ]
     },
     {
+      "tag": "discounts",
+      "keywords": ["khuyến mãi", "giam gia", "giảm giá", "sale", "mã giảm giá", "coupon", "deal", "có fix không"],
+      "responses": [
+        "Bot: Tất cả các chương trình giảm giá (nếu có) đều đã được áp dụng trực tiếp vào giá bạn thấy trên web rồi ạ.",
+        "Bot: Hiện tại shop chưa có chương trình mã giảm giá riêng, nhưng luôn có rất nhiều tài khoản ngon giá tốt đó bạn.",
+        "Bot: Bạn hãy theo dõi trang chủ hoặc fanpage của shop để cập nhật các đợt khuyến mãi đặc biệt nhé! 😉"
+      ]
+    },
+    {
+      "tag": "about_bot",
+      "keywords": ["bạn là ai", "may la ai", "bot à", "người hay máy", "ai đang nói"],
+      "responses": [
+        "Bot: Tôi là trợ lý ảo của ShopACC, được tạo ra để giúp bạn giải đáp các thắc mắc một cách nhanh chóng. 😊",
+        "Bot: Tôi là một chatbot. Nếu bạn cần gặp nhân viên hỗ trợ thật, cứ nói nhé!",
+        "Bot: Dạ, tôi là bot hỗ trợ tự động của shop ạ. Tôi có thể giúp bạn với các câu hỏi thông thường."
+      ]
+    },
+    {
+      "tag": "shop_contact",
+      "keywords": ["liên hệ", "lien he", "địa chỉ", "fanpage", "facebook", "sdt", "số điện thoại"],
+      "responses": [
+        "Bot: Bạn có thể liên hệ trực tiếp với shop qua fanpage Facebook [bạn điền link fanpage vào đây] hoặc email [bạn điền email hỗ trợ vào đây] nhé.",
+        "Bot: Để được hỗ trợ nhanh nhất, bạn vui lòng nhắn tin cho fanpage của shop ạ.",
+        "Bot: Mọi thông tin liên hệ của shop đều có ở cuối trang web bạn nhé."
+      ]
+    },
+    {
+      "tag": "sell_account_to_shop",
+      "keywords": ["bán acc", "thu mua", "mua lại", "bán tài khoản", "ký gửi"],
+      "responses": [
+        "Bot: Cảm ơn bạn đã quan tâm! Hiện tại shop có thu mua tài khoản LMHT trắng thông tin. Bạn vui lòng liên hệ fanpage để được định giá nhé.",
+        "Bot: Dạ có ạ. Bạn vui lòng gửi thông tin chi tiết (số tướng, số skin, rank...) qua fanpage để shop thẩm định và báo giá ạ.",
+        "Bot: Shop có nhận ký gửi hoặc thu mua tài khoản. Để biết chi tiết, bạn hãy liên hệ trực tiếp với admin qua fanpage nhé."
+      ]
+    }
+    {
       "tag": "purchase_info",
       "keywords": ["mua", "thanh toán", "mua bán", "giao dịch", "trả tiền"],
       "responses": [

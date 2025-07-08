@@ -9,6 +9,6 @@ timeout = 120
 loglevel = "debug"
 
 # Logging config
-accesslog = "-"     # "-" nghĩa là log ra stdout
+accesslog = None     # "-" nghĩa là log ra stdout
 errorlog = "-"      # log lỗi ra stderr
 capture_output = True  # ghi stdout/stderr từ app

@@ -16,7 +16,7 @@ setup_logging()
 print(">>> Logging started <<<")
 logging.debug("🟢 Logging setup complete.")
 
-app = create_app(config_class=Production)
+app = create_app(config_class=Testing)
 
 # Chạy upgrade trước khi run app
 alembic_cfg = AlembicConfig("migrations/alembic.ini")

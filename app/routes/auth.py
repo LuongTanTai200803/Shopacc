@@ -45,7 +45,7 @@ def signup():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    logger.debug("Đã vào api")
+    
     data = request.get_json()
     username = data['username']
     password = data['password']

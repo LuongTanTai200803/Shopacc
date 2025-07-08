@@ -24,5 +24,5 @@ COPY . /app
 EXPOSE 8000
 
 # Chạy ứng dụng bằng Gunicorn với file cấu hình
-CMD ["gunicorn", "main:app", "-c", "gunicorn.conf.py"]
+CMD ["gunicorn", "wsgi:app", "-c", "gunicorn.conf.py"]
 

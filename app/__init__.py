@@ -50,11 +50,12 @@ def create_app(config_class = Config):
         app.config.from_object(config_class)
 
         sentry_sdk.init(
-        dsn="https://fdc26a8a1a22a4a0e58400fec27e878b@o4509087854559232.ingest.us.sentry.io/4509598772035584",  # thay bằng DSN thật
+        dsn=os.getenv('SENTRY'),  # thay bằng DSN thật
         integrations=[FlaskIntegration()],
         traces_sample_rate=1.0,
         environment="production"  # hoặc "development" nếu đang dev
         )
+        
         metrics = PrometheusMetrics(app)
         db.init_app(app)
         jwt.init_app(app)
@@ -62,7 +63,9 @@ def create_app(config_class = Config):
         cache.init_app(app)
 
         # Khởi tạo SocketIO với app và cấu hình CORS cho nó
-        socketio.init_app(app, cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
+        socketio.init_app(app, 
+                        #   message_queue=os.getenv('SOCKET_REDIS_URL', 'redis://localhost:6379/3'),
+                          cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
 
         from app.models import User, Acc 
         with app.app_context():
@@ -182,17 +185,18 @@ def setup_logging():
     flask_logger.setLevel(logging.DEBUG)
     flask_logger.addHandler(file_handler)
 
-    loki_url = os.getenv("LOKI_URL", "http://localhost:3100")
-
+    # loki_url = os.getenv("LOKI_URL", "http://localhost:3100")
     # Loki HTTP
-    loki_handler = LokiHandler(loki_url=loki_url)
-    loki_handler.addFilter(ExcludeGeventFilter())
-    loki_handler.setLevel(logging.INFO)
-    loki_handler.setFormatter(logging.Formatter(log_format))
-    logger.addHandler(loki_handler)
-
-    logging.getLogger('werkzeug').setLevel(logging.WARNING)
-
+    # loki_handler = LokiHandler(loki_url=loki_url)
+    # Không push log từ geventwebsocket.handler
+    # loki_handler.addFilter(ExcludeGeventFilter())
+    # loki_handler.setLevel(logging.INFO)
+    # loki_handler.setFormatter(logging.Formatter(log_format))
+    # logger.addHandler(loki_handler)
+    logging.getLogger("geventwebsocket.handler").setLevel(logging.ERROR)
+    logging.getLogger("alembic.runtime.migration").setLevel(logging.CRITICAL)
+    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
+    logging.getLogger("requests").setLevel(logging.DEBUG)
 
 def wait_for_db(app, db, retries=5, delay=2):
     last_exception = None

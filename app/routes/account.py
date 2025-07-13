@@ -1,5 +1,8 @@
 from functools import wraps
 import logging
+from urllib.parse import urlencode
+
+from sqlalchemy import func
 from ..extensions import db, cache
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
@@ -14,6 +17,13 @@ logger = logging.getLogger(__name__)
 acc_bp = Blueprint("acc",__name__)
 
 # logger = logging.getLogger(__name__)
+
+def safe_int(val):
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return None
+    
 def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
@@ -38,15 +48,42 @@ def check_user(user_id):
         return False
 
 @acc_bp.route('/', methods=['GET'])
-@cache.cached(timeout=60)
 def get_acc():
+    # Lấy toàn bộ query parameters
+    query_params = request.args.to_dict()
+    cache_key = f"accounts_view_cache:{urlencode(query_params)}" if query_params else "accounts_view_cache"
 
-    accs = Acc.query.filter_by().all()
-    #logger.error(f"Number of accounts: {len(accs)}")
-    # if not accs:
-    #     #logger.error("No accounts found, returning empty response")
-    #     return jsonify(), 203
+    cached = cache.get(cache_key)
+    if cached:
+        return jsonify(cached), 200
     
+    # Nếu có tham số tìm kiếm, lọc theo hero, skin hoặc description
+    hero = request.args.get("hero")
+    skin = request.args.get("skin")
+    desc = request.args.get("desc")
+
+    price_min = request.args.get("price_min", type=int)
+    price_max = request.args.get("price_max", type=int)
+
+    query = Acc.query
+    logger.debug(f"request args: {request.args}")
+    logger.debug(f"Filtering by hero: {hero}")
+
+    
+    if desc:
+        query = query.filter(func.lower(Acc.description).contains(desc.lower()))
+    if hero:
+        query = query.filter(Acc.hero == int(hero))
+    if skin:
+        query = query.filter(Acc.skin == int(skin))
+    if price_min is not None:
+        query = query.filter(Acc.price >= price_min)
+    if price_max is not None:
+        query = query.filter(Acc.price <= price_max)
+
+    # Nếu không có tham số tìm kiếm, lấy tất cả
+    accs = query.all()
+
     acc_data = [
         {
             "id": acc.id,
@@ -58,7 +95,10 @@ def get_acc():
         }
         for acc in accs
     ]
+
+    cache.set(cache_key, acc_data, timeout=60)
     return jsonify(acc_data), 200
+
 
 @acc_bp.route('/<int:acc_id>', methods=['GET'])
 @jwt_required()

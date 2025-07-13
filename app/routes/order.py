@@ -5,8 +5,13 @@ from ..extensions import db, jwt
 from ..models.acc import Acc
 from ..models.user import User
 
+import logging
 
-
+logger = logging.getLogger(__name__) 
+logger.setLevel(logging.DEBUG)
+if not logger.hasHandlers():
+    # Gắn handler từ root để logger này không bị “mute”
+    logger.propagate = True
 order_bp = Blueprint("order",__name__)
 
 @order_bp.route("/payment", methods=["PATCH"])
@@ -14,8 +19,8 @@ order_bp = Blueprint("order",__name__)
 def purchase():
     user_id = get_jwt_identity()
     data = request.get_json()
-    
-    acc_id = data.get("acc_id")
+    logger.debug(f"Data received for purchase: {data}")
+    acc_id = data.get("id")
     price = int(data.get("price"))
 
     user = db.session.get(User, user_id)

@@ -16,7 +16,7 @@ setup_logging()
 print(">>> Logging started <<<")
 logging.debug("🟢 Logging setup complete.")
 
-app = create_app(config_class=Testing)
+app = create_app(config_class=Production)
 
 # Chạy upgrade trước khi run app
 alembic_cfg = AlembicConfig("migrations/alembic.ini")
@@ -37,7 +37,7 @@ if __name__ == '__main__':
         socketio.run(app, 
                      host="0.0.0.0", 
                      port=int(os.environ.get("PORT", 8000)), 
-                     debug=True)
+                     debug=False)
                      
     except Exception as e:
         # Nếu có bất kỳ lỗi nào xảy ra khi khởi động, nó sẽ được in ra ở đây

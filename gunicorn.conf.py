@@ -6,7 +6,7 @@ workers = 2
 worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'
 threads = 2
 timeout = 120
-loglevel = "debug"
+loglevel = "error"
 
 # Logging config
 accesslog = None     # "-" nghĩa là log ra stdout

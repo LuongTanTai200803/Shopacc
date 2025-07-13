@@ -8,7 +8,7 @@ import logging
 
 # Tắt log DEBUG cho requests và urllib3
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("requests").setLevel(logging.WARNING)
+
 
 class LokiHandler(logging.Handler):
     def __init__(self, loki_url, labels=None):

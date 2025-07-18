@@ -163,8 +163,11 @@ def update_acc(acc_id):
         value = data.get(field)
         if value not in (None, ""):
             setattr(acc, field, value)
+    print(f"Updating acc {acc_id} with data: {data}") 
+    acc.account_name = data.get('account_name', acc.account_name)
+    acc.account_pass = data.get('account_pass', acc.account_pass)
 
-
+    acc.status = data.get('status', acc.status)
     acc.description = data.get('description', acc.description)
     acc.rank = data.get('rank', acc.rank)
     acc.image_url = data.get('image_url', acc.image_url)

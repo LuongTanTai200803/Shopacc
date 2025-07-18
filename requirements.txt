@@ -20,8 +20,8 @@ Flask-JWT-Extended==4.7.1
 Flask-Migrate==4.1.0
 Flask-SocketIO==5.5.1
 Flask-SQLAlchemy==3.1.1
-gevent
-gevent-websocket
+gevent==25.5.1
+gevent-websocket==0.10.1
 google-ai-generativelanguage==0.6.15
 google-api-core==2.25.1
 google-api-python-client==2.175.0
@@ -85,3 +85,5 @@ uritemplate==4.2.0
 urllib3==2.5.0
 Werkzeug==3.1.3
 wsproto==1.2.0
+zope.event==5.1
+zope.interface==7.2

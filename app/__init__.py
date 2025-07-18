@@ -49,12 +49,12 @@ def create_app(config_class = Config):
 
         app.config.from_object(config_class)
 
-        sentry_sdk.init(
-        dsn=os.getenv('SENTRY'),  # thay bằng DSN thật
-        integrations=[FlaskIntegration()],
-        traces_sample_rate=1.0,
-        environment="production"  # hoặc "development" nếu đang dev
-        )
+        # sentry_sdk.init(
+        # dsn=os.getenv('SENTRY'),  # thay bằng DSN thật
+        # integrations=[FlaskIntegration()],
+        # traces_sample_rate=1.0,
+        # environment="production"  # hoặc "development" nếu đang dev
+        # )
         
         metrics = PrometheusMetrics(app)
         db.init_app(app)
@@ -66,13 +66,6 @@ def create_app(config_class = Config):
         socketio.init_app(app, 
                         #   message_queue=os.getenv('SOCKET_REDIS_URL', 'redis://localhost:6379/3'),
                           cors_allowed_origins=["https://shopacc.up.railway.app", "http://localhost:5173"])
-
-        from app.models import User, Acc 
-        with app.app_context():
-            print("Running DB migrations...")
-            upgrade()
-            print("DB migrations completed.")
-            
 
 
         logger.debug(f"CACHE_REDIS_URL: {os.getenv('CACHE_REDIS_URL')}")

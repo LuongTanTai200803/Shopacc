@@ -10,4 +10,6 @@ class Acc(db.Model):
     rank = db.Column(db.Text, nullable=True, default="Unrank")
     image_url = db.Column(db.String(300), nullable=True)
 
-
+    account_name = db.Column(db.String(100),unique=True, nullable=True)
+    account_pass = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(20), default='available')  # available, sold, pending

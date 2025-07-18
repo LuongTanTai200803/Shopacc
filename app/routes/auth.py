@@ -105,10 +105,11 @@ def put_coin():
         return jsonify({"msg": "User not exist"}), 404
     
     coin = int(data['coin'])
+    print(f"Received coin: {coin}")
     if   coin < 0 :
         return jsonify({"msg": "wrong value"}),400
     
-    user.coin += int(data.get('coin', user.coin))
+    user.coin += data.get('coin', user.coin)
 
     db.session.commit()
 

@@ -1,6 +1,13 @@
-print("Main file loaded")
-
+import sys
 import os
+
+
+# Thêm đường dẫn gốc của dự án vào sys.path
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+
 from app import create_app, setup_logging, wait_for_db
 from app.config import Production, Testing
 from app.extensions import socketio, db # Import socketio và db
@@ -37,7 +44,7 @@ if __name__ == '__main__':
         socketio.run(app, 
                      host="0.0.0.0", 
                      port=int(os.environ.get("PORT", 8000)), 
-                     debug=False)
+                     debug=True)
                      
     except Exception as e:
         # Nếu có bất kỳ lỗi nào xảy ra khi khởi động, nó sẽ được in ra ở đây

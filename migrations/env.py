@@ -11,9 +11,7 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-
 # fileConfig(config.config_file_name)
-
 logger = logging.getLogger('alembic.env')
 logger.setLevel(logging.ERROR)
 
@@ -21,9 +19,7 @@ logger.setLevel(logging.ERROR)
 def get_engine():
     try:
         # this works with Flask-SQLAlchemy<3 and Alchemical
-
-        return current_app.extensions['migrate'].db.engine
-
+        return current_app.extensions['migrate'].db.get_engine()
     except (TypeError, AttributeError):
         # this works with Flask-SQLAlchemy>=3
         return current_app.extensions['migrate'].db.engine

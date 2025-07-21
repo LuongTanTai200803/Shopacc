@@ -2,16 +2,19 @@ import re
 import random
 import json
 import os
-from flask import request
+import uuid 
+
+from flask import request, url_for, current_app
 from .extensions import socketio
 from .models import Acc
 from sqlalchemy import func
 from flask_socketio import emit
 import google.generativeai as genai
-
+from gtts import gTTS
 # --- PHẦN CẤU HÌNH VÀ TẢI DỮ LIỆU (Giữ nguyên) ---
 live_chat_queue = {}
-
+AUDIO_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'audio')
+os.makedirs(AUDIO_FOLDER, exist_ok=True)
 try:
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     if not GEMINI_API_KEY:
@@ -35,7 +38,50 @@ def load_intents():
         return []
 
 JSON_INTENTS = load_intents()
+def create_audio_response(text_to_speak):
+    """
+    Tạo file MP3 từ văn bản bằng gTTS, sau khi đã xử lý để đọc tự nhiên hơn.
+    """
+    try:
+        # --- NÂNG CẤP TOÀN DIỆN LOGIC XỬ LÝ VĂN BẢN ---
+        
+        # 1. Tạo bản sao văn bản để xử lý riêng cho gTTS
+        text_for_gtts = text_to_speak
 
+        # 2. Xử lý các từ viết tắt và tên riêng
+        # Dạy nó đọc "ShopACC" thành "Shop Ác" cho tự nhiên
+        text_for_gtts = text_for_gtts.replace('ShopACC', 'Shop Ạc')
+        text_for_gtts = text_for_gtts.replace('ACC', 'Ạc')
+        
+        # Dạy nó đọc "LMHT" thành "liên minh huyền thoại"
+        text_for_gtts = text_for_gtts.replace('LMHT', 'liên minh huyền thoại')
+
+        # 3. Loại bỏ các ký tự đặc biệt của Markdown
+        # Dùng regex để xóa tất cả các ký tự '*' và '#'
+        text_for_gtts = re.sub(r'[\*#"]', '', text_for_gtts)
+
+        # 4. Xử lý các trường hợp khác để âm thanh mượt hơn
+        # Thay thế dấu xuống dòng bằng dấu phẩy để có nhịp nghỉ
+        text_for_gtts = text_for_gtts.replace('\n', ', ')
+
+        # ---------------------------------------------------
+
+        # Tạo tên file ngẫu nhiên
+        filename = f"{uuid.uuid4()}.mp3"
+        filepath = os.path.join(AUDIO_FOLDER, filename)
+
+        # Tạo âm thanh với văn bản đã được "huấn luyện"
+        tts = gTTS(text=text_for_gtts, lang='vi', slow=False)
+        tts.save(filepath)
+        
+        # Trả về URL
+        with current_app.app_context():
+            audio_url = url_for('static', filename=f'audio/{filename}', _external=True)
+        return audio_url
+
+    except Exception as e:
+        print(f"Lỗi khi tạo file audio: {e}")
+        return None
 # --- NÂNG CẤP: HÀM XỬ LÝ SỐ THÔNG MINH HƠN ---
 def parse_price_from_message(message):
     """Trích xuất giá tiền từ tin nhắn, hiểu được 'k' (ngàn) và 'm' (triệu)."""
@@ -66,12 +112,32 @@ def ask_gemini_ai(task, user_message=None, context=None):
     system_prompt = ""
     if task == 'answer':
         system_prompt = """
-        Bạn là một trợ lý ảo tên là Bot, làm việc cho một cửa hàng bán tài khoản game Liên Minh Huyền Thoại (LMHT) tên là ShopACC.
-        Nhiệm vụ của bạn là trả lời các câu hỏi của khách hàng một cách thân thiện, chuyên nghiệp và chỉ tập trung vào các chủ đề liên quan đến shop.
-        QUY TẮC VÀNG:
-        1. BẠN CHỈ BÁN ACC LMHT.
-        2. Khi tư vấn, hãy dựa vào dữ liệu tài khoản được cung cấp để đưa ra gợi ý.
-        3. Nếu người dùng hỏi một câu không liên quan đến cửa hàng game, bạn PHẢI từ chối trả lời một cách lịch sự.
+        # BẢN MÔ TẢ CÔNG VIỆC CỦA TRỢ LÝ ẢO TẠI SHOPACC #
+
+        ## 1. BẠN LÀ AI?
+        - **Tên:** Bot.
+        - **Vai trò:** Chuyên gia tư vấn tài khoản game tại ShopACC.
+        - **Tính cách:** Hãy trò chuyện như một người bạn am hiểu về game, **nhiệt tình, thân thiện và đáng tin cậy**. Giọng văn tự nhiên, không quá máy móc.
+
+        ## 2. MỤC TIÊU CHÍNH
+        - Giúp khách hàng tìm được tài khoản **Liên Minh Huyền Thoại** ưng ý nhất dựa trên nhu cầu và ngân sách của họ.
+        - Mang lại trải nghiệm tư vấn chuyên nghiệp và vui vẻ.
+
+        ## 3. QUY TRÌNH TƯ VẤN
+        - **Khi khách hỏi chung chung (ví dụ: "tìm acc đi shop"):** Nếu không có DỮ LIỆU THAM KHẢO, hãy **chủ động hỏi lại** để làm rõ nhu cầu của khách: "Chào bạn, để mình tìm acc chuẩn nhất cho bạn, bạn cho mình biết thêm về rank, tướng yêu thích, hoặc tầm giá bạn quan tâm được không?"
+        - **Khi có DỮ LIỆU THAM KHẢO:** Đây là danh sách các tài khoản có sẵn trong shop. Nhiệm vụ của bạn là:
+            - Trình bày các lựa chọn một cách **rõ ràng, súc tích**.
+            - **Nêu bật các điểm đặc biệt** của từng tài khoản (ví dụ: "Acc ID 123 có skin Yasuo Ma Kiếm đó bạn ơi!").
+            - Dựa vào câu hỏi của khách để đưa ra gợi ý phù hợp nhất từ danh sách này.
+        - **Định dạng câu trả lời:** Luôn sử dụng **Markdown** để câu trả lời dễ đọc.
+            - Dùng **gạch đầu dòng (`-`)** để liệt kê tài khoản.
+            - Dùng **in đậm (`**...**`)** để nhấn mạnh các thông tin quan trọng như tên skin hiếm, rank cao, hoặc giá tốt.
+
+        ## 4. CÁC QUY TẮC BẤT DI BẤT DỊCH
+        - **TRUNG THỰC:** **Tuyệt đối không bịa đặt thông tin** tài khoản không có trong DỮ LIỆU THAM KHẢO. Nếu không tìm thấy tài khoản phù hợp, hãy nói thật: "Tiếc quá, hiện tại shop mình chưa có acc nào khớp với yêu cầu của bạn. Bạn xem thử các acc này nhé, cũng khá ổn đó!"
+        - **TẬP TRUNG:** Chỉ thảo luận về game **Liên Minh Huyền Thoại** và các tài khoản do ShopACC bán. Lịch sự từ chối các chủ đề không liên quan (ví dụ: "Shop có bán acc Valorant không?" -> "Dạ hiện tại shop mình chỉ chuyên về Liên Minh Huyền Thoại thôi ạ.").
+        - **AN TOÀN:** Không trả lời các câu hỏi về hack/cheat, cày thuê, hoặc các hoạt động vi phạm điều khoản của game.
+        - **BẢO MẬT:** Không hỏi hay yêu cầu khách hàng cung cấp thông tin cá nhân nhạy cảm.
         """
         if context:
             system_prompt += f"\n\nDỮ LIỆU THAM KHẢO:\n{context}"
@@ -79,7 +145,31 @@ def ask_gemini_ai(task, user_message=None, context=None):
 
     elif task == 'rephrase':
         system_prompt = """
-        Bạn là một trợ lý ảo bán hàng game thân thiện. Hãy diễn đạt lại câu văn sau đây sao cho tự nhiên, gần gũi và chuyên nghiệp hơn, nhưng phải giữ nguyên ý nghĩa cốt lõi của nó. Không thêm thông tin mới.
+        # CHUYÊN GIA DIỄN ĐẠT LẠI CÂU VĂN #
+
+        ## 1. VAI TRÒ CỦA BẠN
+        - Bạn là một chuyên gia giao tiếp của ShopACC, chuyên biến những câu trả lời có sẵn (hơi khô khan) thành những đoạn hội thoại tự nhiên, thu hút và thân thiện.
+        - **Tông giọng:** Hãy nói chuyện như một người bạn game thủ, nhiệt tình, nhưng vẫn chuyên nghiệp và đáng tin cậy.
+
+        ## 2. NHIỆM VỤ
+        - Nhận một "Câu gốc" và diễn đạt lại nó.
+        - **Mục tiêu:** Làm cho câu trả lời của bot bớt "robot" và giống người hơn, tạo cảm giác gần gũi cho khách hàng.
+
+        ## 3. VÍ DỤ ĐỂ BẠN HỌC THEO
+        - **Ví dụ 1:**
+            - **Câu gốc:** "Để thanh toán, bạn có thể chuyển khoản qua ngân hàng."
+            - **Diễn đạt lại:** "Chắc chắn rồi ạ! Về thanh toán, bạn có thể chuyển khoản qua ngân hàng một cách nhanh chóng và tiện lợi nhé."
+        - **Ví dụ 2:**
+            - **Câu gốc:** "Chào bạn."
+            - **Diễn đạt lại:** "ShopACC xin chào! Mình có thể hỗ trợ gì cho bạn hôm nay không ạ?"
+        - **Ví dụ 3:**
+            - **Câu gốc:** "Cảm ơn bạn đã mua hàng."
+            - **Diễn đạt lại:** "Cảm ơn bạn đã tin tưởng và ủng hộ ShopACC! Nếu cần hỗ trợ gì thêm, đừng ngần ngại nhắn cho mình nhé."
+
+        ## 4. QUY TẮC BẮT BUỘC
+        - **GIỮ NGUYÊN Ý CHÍNH:** Phải giữ lại 100% ý nghĩa và thông tin cốt lõi của câu gốc.
+        - **KHÔNG THÊM THÔNG TIN MỚI:** Tuyệt đối không được thêm bất kỳ thông tin nào không có trong câu gốc.
+        - **TỰ NHIÊN:** Tránh dùng từ ngữ quá trang trọng, sáo rỗng. Hãy dùng ngôn ngữ đời thường, gần gũi.
         """
         content_to_send = f"{system_prompt}\n\nCâu văn cần diễn đạt lại: '{context}'"
     
@@ -106,6 +196,7 @@ def handle_account_details(user_message, numbers):
     except (ValueError, IndexError):
         return "Bot: ID tài khoản không hợp lệ."
 
+
 def handle_consultation(user_message, numbers):
     # ... (Giữ nguyên)
     price_limit = parse_price_from_message(user_message)
@@ -119,11 +210,20 @@ def handle_consultation(user_message, numbers):
     for acc in accounts:
         context_for_ai += f"- ID {acc.id}: Giá {acc.price:,.0f}, có {acc.hero} tướng, {acc.skin} skin.\n"
     return ask_gemini_ai(task='answer', user_message=user_message, context=context_for_ai)
-
 COMPLEX_HANDLERS = [
     {"keywords": ["chi tiết", "thông tin", "xem acc"], "handler": handle_account_details},
     {"keywords": ["tư vấn", "gợi ý", "nên mua"], "handler": handle_consultation},
 ]
+# =================================================================
+def emit_reply_with_audio(text_response, user_sid):
+    """
+    Hàm trung tâm: nhận văn bản, tạo audio, và gửi cả hai cho client.
+    """
+    # Tạo URL âm thanh từ văn bản phản hồi
+    audio_url = create_audio_response(text_response)
+
+    # Gửi sự kiện 'bot_reply' với cả message và audioUrl
+    emit('bot_reply', {'message': text_response, 'audioUrl': audio_url}, room=user_sid)
 
 # --- PHẦN XỬ LÝ SỰ KIỆN SOCKETIO ---
 @socketio.on('connect')
@@ -151,7 +251,7 @@ def handle_user_message(data):
             base_response = random.choice(intent["responses"])
             # Nhờ AI diễn đạt lại cho hay hơn
             final_response = ask_gemini_ai(task='rephrase', context=base_response)
-            emit('bot_reply', {'message': final_response or base_response}, room=user_sid)
+            emit_reply_with_audio(final_response, user_sid) 
             return
 
     # 2. Xử lý các chức năng phức tạp
@@ -159,13 +259,13 @@ def handle_user_message(data):
         if any(re.search(r'\b' + re.escape(keyword) + r'\b', user_message) for keyword in intent["keywords"]):
             response = intent["handler"](user_message, numbers)
             if response:
-                emit('bot_reply', {'message': response}, room=user_sid)
+                emit_reply_with_audio(response, user_sid)
                 return
 
     # 3. Nếu không khớp, hỏi AI chung chung
     ai_response = ask_gemini_ai(task='answer', user_message=original_message)
     if ai_response:
-        emit('bot_reply', {'message': ai_response}, room=user_sid)
+        emit_reply_with_audio(ai_response, user_sid)
         return
 
     # 4. Nếu AI cũng không xử lý được, chuyển cho admin
@@ -178,7 +278,7 @@ def fallback_to_live_chat(user_sid, original_message):
     else:
         bot_response = "Bot: Nhân viên hỗ trợ sẽ trả lời bạn ngay. Vui lòng chờ một chút."
     
-    emit('bot_reply', {'message': bot_response}, room=user_sid)
+    emit_reply_with_audio(bot_response, user_sid) 
     socketio.emit('livechat_request', {'sid': user_sid, 'message': original_message})
 
 @socketio.on('admin_message')

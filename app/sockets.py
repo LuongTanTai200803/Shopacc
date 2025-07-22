@@ -186,7 +186,9 @@ def ask_gemini_ai(task, user_message=None, context=None):
 # --- CÁC HÀM XỬ LÝ PHỨC TẠP ---
 def handle_account_details(user_message, numbers):
     # ... (Giữ nguyên)
-    if not numbers: return None
+    if not numbers:
+        # Nâng cấp: Nếu không có số, nhờ AI hỏi lại ID
+        return ask_gemini_ai(task='answer', user_message=user_message, context="Khách hàng đang muốn xem chi tiết tài khoản nhưng chưa cung cấp ID. Hãy hỏi lại họ cần xem ID nào.")
     try:
         acc_id = int(numbers[0])
         account = Acc.query.get(acc_id)
@@ -198,17 +200,19 @@ def handle_account_details(user_message, numbers):
 
 
 def handle_consultation(user_message, numbers):
-    # ... (Giữ nguyên)
     price_limit = parse_price_from_message(user_message)
-    if not price_limit:
-        return ask_gemini_ai(task='answer', user_message=user_message)
-    accounts = Acc.query.filter(Acc.price <= price_limit).order_by(Acc.price.desc()).limit(5).all()
-    if not accounts:
-        return f"Bot: Rất tiếc, hiện tại shop không có tài khoản nào trong tầm giá {price_limit:,.0f} VNĐ."
-    context_for_ai = "Dưới đây là một vài tài khoản LMHT có giá dưới hoặc bằng " \
-                     f"{price_limit:,.0f} VNĐ. Hãy dựa vào đây để tư vấn cho khách:\n"
+    if price_limit:
+        accounts = Acc.query.filter(Acc.price <= price_limit).order_by(Acc.price.desc()).limit(5).all()
+        if not accounts:
+            return f"Bot: Rất tiếc, hiện tại shop không có tài khoản nào trong tầm giá {price_limit:,.0f} VNĐ."
+        context_for_ai = f"Dưới đây là một vài tài khoản Liên Minh Huyền Thoại có giá dưới hoặc bằng {price_limit:,.0f} VNĐ. Hãy dựa vào đây để tư vấn cho khách hàng:\n"
+    else:
+        accounts = Acc.query.order_by(func.random()).limit(5).all()
+        if not accounts:
+            return "Bot: Rất tiếc, cửa hàng hiện tại chưa có tài khoản nào để tư vấn cho bạn."
+        context_for_ai = "Khách hàng đang cần tư vấn một tài khoản Liên Minh Huyền Thoại nhưng chưa đưa ra mức giá. Dưới đây là một vài tài khoản ngẫu nhiên đang có ở shop, hãy dựa vào đây để gợi ý và hỏi thêm khách hàng về nhu cầu của họ (rank, tướng, skin...):\n"
     for acc in accounts:
-        context_for_ai += f"- ID {acc.id}: Giá {acc.price:,.0f}, có {acc.hero} tướng, {acc.skin} skin.\n"
+        context_for_ai += f"- ID {acc.id}: Giá {acc.price:,.0f} VNĐ, có {acc.hero} tướng, {acc.skin} skin.\n"
     return ask_gemini_ai(task='answer', user_message=user_message, context=context_for_ai)
 COMPLEX_HANDLERS = [
     {"keywords": ["chi tiết", "thông tin", "xem acc"], "handler": handle_account_details},
@@ -224,7 +228,42 @@ def emit_reply_with_audio(text_response, user_sid):
 
     # Gửi sự kiện 'bot_reply' với cả message và audioUrl
     emit('bot_reply', {'message': text_response, 'audioUrl': audio_url}, room=user_sid)
+def classify_intent(user_message):
+    """
+    Dùng AI để phân tích câu nói của người dùng và trả về ý định chính.
+    """
+    if not gemini_model:
+        return 'other' # Fallback nếu AI lỗi
 
+    prompt = f"""
+    Bạn là một bộ não phân loại ý định cho chatbot của cửa hàng game ShopACC.
+    Dựa vào câu nói của khách hàng, hãy phân loại nó vào MỘT trong các danh mục sau.
+    Chỉ trả về TÊN DANH MỤC, không thêm bất kỳ giải thích nào.
+
+    DANH MỤC:
+    - 'ask_details': Khách hàng muốn xem thông tin chi tiết về một tài khoản cụ thể, thường nhắc đến "ID", "xem acc", "thông tin acc".
+        Ví dụ: "xem acc id 123", "cho mình xin thông tin con acc 50", "acc 99 có gì?"
+    - 'consult_account': Khách hàng muốn tư vấn, tìm kiếm, hoặc xem các tài khoản nói chung. Đây là ý định phổ biến nhất.
+        Ví dụ: "tìm acc dưới 200k", "có acc nào ngon không shop", "shop có bán acc gì", "cho xem vài con acc xịn"
+    - 'greeting_and_info': Khách hàng đang chào hỏi, cảm ơn, hoặc hỏi các thông tin chung có câu trả lời cố định (như cách thanh toán).
+        Ví dụ: "xin chào", "cảm ơn shop", "shop thanh toán thế nào?"
+    - 'other': Câu hỏi không liên quan đến việc mua bán tài khoản (ví dụ: "shop ở đâu", "game này chơi hay không?").
+
+    Câu nói của khách hàng: "{user_message}"
+    TÊN DANH MỤC:
+    """
+    try:
+        response = gemini_model.generate_content(prompt)
+        intent = response.text.strip().replace("'", "").replace('"', '')
+        print(f"AI classified intent as: '{intent}'")
+        # Đảm bảo AI trả về một trong các intent hợp lệ
+        valid_intents = ['ask_details', 'consult_account', 'greeting_and_info', 'other']
+        if intent in valid_intents:
+            return intent
+        return 'consult_account' # Mặc định là tư vấn nếu AI trả về linh tinh
+    except Exception as e:
+        print(f"Lỗi khi phân loại ý định: {e}")
+        return 'consult_account' # Mặc định là tư vấn nếu có lỗi
 # --- PHẦN XỬ LÝ SỰ KIỆN SOCKETIO ---
 @socketio.on('connect')
 def handle_connect():
@@ -239,37 +278,39 @@ def handle_disconnect():
 
 @socketio.on('user_message')
 def handle_user_message(data):
-    user_message = data.get('message', '').lower()
     original_message = data.get('message', '')
     user_sid = request.sid
-    numbers = re.findall(r'\d+', user_message)
+    numbers = re.findall(r'\d+', original_message)
 
-    # 1. Ưu tiên xử lý các câu hỏi đơn giản từ file JSON, sau đó nhờ AI diễn đạt lại
-    for intent in JSON_INTENTS:
-        if any(re.search(r'\b' + re.escape(keyword) + r'\b', user_message) for keyword in intent["keywords"]):
-            # Chọn ngẫu nhiên một câu trả lời gốc
-            base_response = random.choice(intent["responses"])
-            # Nhờ AI diễn đạt lại cho hay hơn
-            final_response = ask_gemini_ai(task='rephrase', context=base_response)
-            emit_reply_with_audio(final_response, user_sid) 
-            return
+    # Bước 1: Dùng "bộ não" AI để hiểu ý định của khách
+    intent = classify_intent(original_message)
 
-    # 2. Xử lý các chức năng phức tạp
-    for intent in COMPLEX_HANDLERS:
-        if any(re.search(r'\b' + re.escape(keyword) + r'\b', user_message) for keyword in intent["keywords"]):
-            response = intent["handler"](user_message, numbers)
-            if response:
-                emit_reply_with_audio(response, user_sid)
-                return
+    # Bước 2: Dựa vào ý định đã phân loại để hành động
+    if intent == 'greeting_and_info':
+        # Tìm intent tương ứng trong file JSON để lấy câu trả lời mẫu
+        matched_intent = next((i for i in JSON_INTENTS if any(keyword in original_message.lower() for keyword in i["keywords"])), None)
+        # Nếu không khớp từ khóa nào, mặc định là chào hỏi
+        if not matched_intent:
+            matched_intent = next((i for i in JSON_INTENTS if i["tag"] == "greeting"), None)
+        
+        base_response = random.choice(matched_intent["responses"])
+        final_response = ask_gemini_ai(task='rephrase', context=base_response) or base_response
+        emit_reply_with_audio(final_response, user_sid)
 
-    # 3. Nếu không khớp, hỏi AI chung chung
-    ai_response = ask_gemini_ai(task='answer', user_message=original_message)
-    if ai_response:
-        emit_reply_with_audio(ai_response, user_sid)
-        return
+    elif intent == 'ask_details':
+        response = handle_account_details(original_message, numbers)
+        emit_reply_with_audio(response, user_sid)
 
-    # 4. Nếu AI cũng không xử lý được, chuyển cho admin
-    fallback_to_live_chat(user_sid, original_message)
+    elif intent == 'consult_account':
+        response = handle_consultation(original_message, numbers)
+        emit_reply_with_audio(response, user_sid)
+
+    else: # 'other' hoặc các trường hợp AI không phân loại được
+        ai_response = ask_gemini_ai(task='answer', user_message=original_message)
+        if ai_response:
+            emit_reply_with_audio(ai_response, user_sid)
+        else:
+            fallback_to_live_chat(user_sid, original_message)
 
 def fallback_to_live_chat(user_sid, original_message):
     if user_sid not in live_chat_queue:

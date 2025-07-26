@@ -15,6 +15,22 @@ import logging
 logger = logging.getLogger(__name__) 
 
 
+def rate_limit_login(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if request.path == '/auth/login':
+            ip = request.remote_addr
+            key = f"login_rate_limit:{ip}"
+            attempts = cache.get(key) or 0
+            print(f"Login attempts for {ip}: {attempts}")
+            if attempts >= 5:
+                return jsonify({"msg": "Too many login attempts. Please try again later."}), 429
+            
+            cache.set(key, attempts + 1, timeout=60)  # Reset after 60 seconds
+            return fn(*args, **kwargs)
+    
+    return wrapper
+
 @auth_bp.route('/ping')
 def ping():
     return "pong", 200
@@ -44,6 +60,7 @@ def signup():
         return jsonify({"message": "Lỗi server", "error": str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
+@rate_limit_login
 def login():
     
     data = request.get_json()

@@ -14,10 +14,11 @@ from .logger import ExcludeGeventFilter, LokiHandler
 
 from .config import Config
 from .extensions import db, jwt, migrate, cache, socketio
-from .log_request import setup_request_logger
+from .log_request import setup_request_logger, setup_security_header
+from .rate_limit import setup_rate_limit
 
 from .error_handler import register_error_handlers
-from .routes import auth_bp, acc_bp, order_bp
+from .routes import auth_bp, acc_bp, order_bp, comments_bp
 from flask_cors import CORS
 
 
@@ -76,10 +77,15 @@ def create_app(config_class = Config):
         app.register_blueprint(auth_bp, url_prefix="/auth")
         app.register_blueprint(acc_bp, url_prefix="/acc")
         app.register_blueprint(order_bp, url_prefix="/order")
+        
+        app.register_blueprint(comments_bp, url_prefix="/comments")
 
         # Đăng ký log
         setup_request_logger(app)
- 
+        # Đăng ký security header
+        # setup_security_header(app)
+        # Đăng ký middleware giới hạn tần suất request
+        setup_rate_limit(app)
         # Đăng ký error handler
         register_error_handlers(app)
 

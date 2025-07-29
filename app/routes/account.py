@@ -47,7 +47,7 @@ def check_user(user_id):
     else:
         return False
 
-@acc_bp.route('/', methods=['GET'])
+@acc_bp.route('', methods=['GET'])
 def get_acc():
     # Lấy toàn bộ query parameters
     query_params = request.args.to_dict()
